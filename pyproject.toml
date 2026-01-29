@@ -1,0 +1,78 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[dependency-groups]
+cuda = [
+  "jax[cuda]>=0.9.0",
+]
+dev = [
+  {include-group = "tests"},
+  "bump-my-version>=1.2.6",
+  "pre-commit>=4.5.1",
+  "ty>=0.0.14",
+]
+tests = [
+  "beartype>=0.22.9",
+  "chex>=0.1.91",
+  "pytest>=9.0.2",
+  "pytest-env>=1.2.0",
+  "pytest-subtests>=0.15.0",
+]
+
+[project]
+authors = [
+  {name = "Jérome Eertmans", email = "jeertmans@icloud.com"},
+]
+dependencies = [
+  "differt>=0.6.2",
+  "equinox>=0.13.4",
+  "jax>=0.9.0",
+  "jaxtyping>=0.3.6",
+  "matplotlib>=3.10.8",
+  "optax>=0.2.6",
+  "tqdm>=4.67.1",
+]
+description = "Generative Path Candidate Sampler for Faster Point-to-Point Ray Tracing"
+license = "MIT"
+name = "sampling-paths"
+readme = "README.md"
+requires-python = ">=3.11"
+version = "0.1.0"
+
+[project.scripts]
+"train-path-sampler" = "sampling_paths.__main__:main"
+
+[tool.pytest.ini_options]
+addopts = [
+  "--jaxtyping-packages=sampling_paths,beartype.beartype(conf=beartype.BeartypeConf(strategy=beartype.BeartypeStrategy.On))",
+]
+env = [
+  "JAX_DEBUG_NANS=True",
+  "JAX_PLATFORM_NAME=cpu",
+]
+filterwarnings = [
+  "error",
+]
+markers = [
+  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.ruff]
+extend-include = ["*.ipynb"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+extend-ignore = ["D203", "D212", "F722"]
+extend-select = ["D"]
+isort = {known-first-party = ["sampling_paths", "tests"]}
+
+[tool.ruff.lint.extend-per-file-ignores]
+"!src/sampling_paths/*.py" = ["D"]
+"src/sampling_paths/*.py" = ["D100", "F401"]
+"src/sampling_paths/__main__.py" = ["D103"]
+
+[tool.uv.sources]
+differt = {path = "../DiffeRT/DiffeRT/differt"}  # TODO: remove this

@@ -1,0 +1,49 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: check-yaml
+  - id: check-toml
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.16.0
+  hooks:
+  - id: pretty-format-yaml
+    args: [--autofix]
+  - id: pretty-format-toml
+    args: [--autofix, --trailing-commas]
+    exclude: Cargo.lock
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.14.14
+  hooks:
+  - id: ruff-check
+    args: [--fix]
+    types_or: [python, jupyter]
+  - id: ruff-format
+    types_or: [python, jupyter]
+- repo: local
+  hooks:
+  - id: ty
+    name: typecheck
+    description: Typecheck Python files with ty
+    language: system
+    entry: uv run ty check
+    pass_filenames: false
+- repo: https://github.com/kynan/nbstripout
+  rev: 0.9.0
+  hooks:
+  - id: nbstripout
+    args:
+    - --keep-output
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.4.1
+  hooks:
+  - id: codespell
+    additional_dependencies:
+    - tomli
+    exclude_types: [jupyter]
+- repo: https://github.com/astral-sh/uv-pre-commit
+  rev: 0.9.26
+  hooks:
+  - id: uv-lock
