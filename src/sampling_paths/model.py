@@ -85,7 +85,8 @@ class Model(eqx.Module):
         self,
         scene: TriangleScene,
         *,
-        replay: Int[Array, " order"] | None = None,
+        replay: Int[Array, " order"] | None = ...,
+        replay_symettric: bool = ...,
         inference: Literal[True],
         key: PRNGKeyArray,
     ) -> Int[Array, " order"]: ...
@@ -95,7 +96,8 @@ class Model(eqx.Module):
         self,
         scene: TriangleScene,
         *,
-        replay: Int[Array, " order"] | None = None,
+        replay: Int[Array, " order"] | None = ...,
+        replay_symettric: bool = ...,
         inference: Literal[False],
         key: PRNGKeyArray,
     ) -> tuple[Int[Array, " order"], Float[Array, ""], Float[Array, ""]]: ...
@@ -105,6 +107,7 @@ class Model(eqx.Module):
         scene: TriangleScene,
         *,
         replay: Int[Array, " order"] | None = None,
+        replay_symmetric: bool = False,
         inference: bool | None = None,
         key: PRNGKeyArray,
     ) -> (
@@ -117,6 +120,7 @@ class Model(eqx.Module):
         Args:
             scene: The scene in which to sample the path candidate.
             replay: If provided, replay this path candidate instead of sampling it randomly.
+            replay_symmetric: Whether to replay the symmetric path (swap transmitters and receivers).
             inference: Whether to run in inference mode (disables epsilon-greedy uniform sampling and dropout).
             key: PRNG key for randomness.
 
@@ -127,8 +131,14 @@ class Model(eqx.Module):
         """
         inference = self.inference if inference is None else inference
 
+        xyz, tx, rx = unpack_scene(scene)
+
+        if replay_symmetric and replay is not None:
+            tx, rx = rx, tx
+            replay = replay[::-1]
+
         # [num_objects 3 3]
-        xyz = geometric_transformation(*unpack_scene(scene))
+        xyz = geometric_transformation(xyz, tx, rx)
         num_objects = xyz.shape[0]
         # [num_objects num_embeddings]
         objects_embeds = self.objects_encoder(xyz, active_objects=scene.mesh.mask)

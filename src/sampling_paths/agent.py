@@ -58,6 +58,7 @@ def replay_loss(
     path_candidates: Int[Array, " batch_size order"],
     *,
     scene_fn: SceneFn,
+    replay_symmetric: bool = False,
 ) -> Float[Array, ""]:
     # N.B.: we don't use the rewards from the replay buffer:
     # while they should equal the ones obtained by the model,
@@ -67,6 +68,7 @@ def replay_loss(
         lambda scene_key, path_candidate: model(
             scene_fn(key=scene_key),
             replay=path_candidate,
+            replay_symmetric=replay_symmetric,
             inference=False,
             key=jr.key(0),
         ),
@@ -141,6 +143,9 @@ class Agent(eqx.Module):
 
     # Static
     batch_size: int = eqx.field(static=True)
+    """Number of path candidates to sample per training step."""
+    replay_symmetric: bool = eqx.field(static=True)
+    """Whether to replay symmetric paths (swap transmitters and receivers) from the replay buffer."""
     # Static but can be changed
     scene_fn: SceneFn
     # Learned
@@ -170,10 +175,12 @@ class Agent(eqx.Module):
         min_epsilon: float = 0.1,
         replay_buffer_capacity: int | None = 10_000,
         replay_with_replacement: bool = False,
+        replay_symmetric: bool = False,
         alpha: Float[ArrayLike, ""] = 0.5,
         scene_fn: SceneFn = random_scene,
     ) -> None:
         self.batch_size = batch_size
+        self.replay_symmetric = replay_symmetric
         self.scene_fn = scene_fn
 
         self.model = model
@@ -244,7 +251,7 @@ class Agent(eqx.Module):
             )
 
             scene_keys, path_candidates, _ = replay_buffer.sample(
-                self.batch_size,
+                self.batch_size // 2 if self.replay_symmetric else self.batch_size,
                 key=key,
             )
 
@@ -255,6 +262,20 @@ class Agent(eqx.Module):
                 scene_keys,
                 path_candidates,
             )
+
+            if self.replay_symmetric:
+                # Also compute gradients for symmetric paths
+                replay_grads_symmetric = eqx.filter_grad(
+                    partial(replay_loss, scene_fn=self.scene_fn, replay_symmetric=True),
+                )(
+                    self.model,
+                    scene_keys,
+                    path_candidates,
+                )
+                replay_grads = eqx.apply_updates(
+                    replay_grads,
+                    replay_grads_symmetric,
+                )
 
             grads = combine_grads(new_grads, replay_grads, alpha)
         else:

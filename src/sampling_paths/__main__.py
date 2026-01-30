@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import time
+from functools import partial
 from pathlib import Path
 
 import equinox as eqx
@@ -14,7 +15,7 @@ from tqdm import tqdm
 
 from sampling_paths.agent import Agent
 from sampling_paths.model import Model
-from sampling_paths.utils import validation_scene_keys
+from sampling_paths.utils import random_scene, validation_scene_keys
 
 
 def main() -> None:
@@ -132,10 +133,34 @@ def main() -> None:
         help="Whether to sample from the replay buffer with replacement.",
     )
     parser.add_argument(
+        "--replay-symmetric",
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help="Whether to replay symmetric paths (swap transmitters and receivers) from the replay buffer.",
+    )
+    parser.add_argument(
         "--alpha",
         type=float,
         default=0.5,
         help="Weighting factor for the replay loss function.",
+    )
+    parser.add_argument(
+        "--sample-objects",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Whether to sample objects in the scene, instead of individual primitives.",
+    )
+    parser.add_argument(
+        "--sample-in-canyon",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Whether to sample transmitters and receivers in the canyon only.",
+    )
+    parser.add_argument(
+        "--include-floor",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Whether to always include the floor in the scene.",
     )
     parser.add_argument(
         "-v",
@@ -180,7 +205,13 @@ def main() -> None:
         min_epsilon=args.min_epsilon,
         replay_buffer_capacity=args.replay_buffer_capacity,
         replay_with_replacement=args.replay_with_replacement,
+        replay_symmetric=args.replay_symmetric,
         alpha=args.alpha,
+        scene_fn=partial(
+            random_scene,
+            sample_in_canyon=args.sample_in_canyon,
+            include_floor=args.include_floor,
+        ),
     )
 
     episodes = []

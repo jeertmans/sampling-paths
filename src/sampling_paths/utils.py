@@ -33,6 +33,7 @@ def random_scene(
     tx_z_max: float = 50.0,
     rx_z_min: float = 1.0,
     rx_z_max: float = 2.0,
+    sample_objects: bool = True,
     sample_in_canyon: bool = True,
     include_floor: bool = True,
     key: PRNGKeyArray,
@@ -49,6 +50,7 @@ def random_scene(
         tx_z_max: Maximum height of the transmitter.
         rx_z_min: Minimum height of the receiver.
         rx_z_max: Maximum height of the receiver.
+        sample_objects: Whether to sample objects in the scene, instead of individual primitives.
         sample_in_canyon: Whether to sample the TX and RX positions within the canyon area.
         include_floor: Whether to always include the floor in the scene.
         key: The random key to be used.
@@ -84,7 +86,7 @@ def random_scene(
             BASE_SCENE.mesh.sample(
                 fill_factor,
                 by_masking=True,
-                sample_objects=True,
+                sample_objects=sample_objects,
                 key=key_sample_triangles,
             ),
         ),

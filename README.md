@@ -3,7 +3,7 @@
 [![arXiv link][arxiv-badge]][arxiv-url]
 [![Colab link][colab-badge]][colab-url]
 
-This repository accompanies the paper "[Transform-Invariant Generative Ray Path Sampling for Efficient Radio Propagation Modeling with Point-to-Point Ray Tracing][arxiv-url]" by Jérome Eertmans, Enrico Maria Vitucci, Vittorio Degli Esposti, Nicola Di Cicco, Claude Oestges and Laurent Jacques.
+This repository accompanies the paper [*Transform-Invariant Generative Ray Path Sampling for Efficient Radio Propagation Modeling with Point-to-Point Ray Tracing*][arxiv-url] by Jérome Eertmans, Enrico Maria Vitucci, Vittorio Degli Esposti, Nicola Di Cicco, Claude Oestges and Laurent Jacques.
 
 It provides:
 - The source code for the model described in the paper, implemented in JAX, in [`src/sampling_paths`](src/sampling_paths), including a script to train and evaluate the model on synthetic data, in [`__main__.py`](src/sampling_paths/__main__.py).
@@ -33,7 +33,7 @@ After installation, you can train and evaluate the model using:
 train-path-sampler --help
 ```
 
-## Getting help
+## Getting Help
 
 For any question about the method or its implementation, make sure to first read the related [paper](todo).
 

@@ -56,7 +56,6 @@ class SceneEncoder(eqx.Module):
 
     out_size: int = eqx.field(static=True)
 
-    attention: eqx.nn.Linear
     rho: eqx.nn.MLP
 
     def __init__(
@@ -67,19 +66,13 @@ class SceneEncoder(eqx.Module):
         *,
         key: PRNGKeyArray,
     ) -> None:
-        att_key, rho_key = jr.split(key)
         self.out_size = num_embeddings
-        self.attention = eqx.nn.Linear(
-            num_embeddings,
-            "scalar",
-            key=att_key,
-        )
         self.rho = eqx.nn.MLP(
             in_size=num_embeddings,
             out_size=num_embeddings,
             width_size=width_size,
             depth=depth,
-            key=rho_key,
+            key=key,
         )
 
     def __call__(
@@ -90,12 +83,6 @@ class SceneEncoder(eqx.Module):
         key: PRNGKeyArray | None = None,
     ) -> Float[Array, " num_embeddings"]:
         del key
-        # [num_objects]
-        # weights = jax.nn.softmax(
-        #    jax.vmap(self.attention)(objects_embeds), where=active_objects
-        # )
-        # [num_embeddings]
-        # weigthed_sum = jnp.dot(weights, objects_embeds)
         return self.rho(
             objects_embeds.mean(
                 axis=0,
