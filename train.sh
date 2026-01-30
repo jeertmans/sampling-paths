@@ -1,13 +1,14 @@
-for epsilon in 0.1 0.2 0.5
+for sampling_objects in "--sample-objects" "--no-sample-objects"
 do
-for alpha in 0.25 0.5 0.75
+for sampling_in_canyon in "--sample-in-canyon" "--no-sample-in-canyon"
 do
-for replay_symmetric in "--no-replay-symmetric" "--replay-symmetric"
+for including_floor in "--include-floor" "--no-include-floor"
 do
-echo $epsilon $alpha $replay_symmetric
-uv run train-path-sampler $replay_symmetric --epsilon $epsilon --alpha $alpha --num-episodes 300000 --num-embeddings 64 --order 2 || true
-uv run train-path-sampler $replay_symmetric --epsilon $epsilon --alpha $alpha --num-episodes 300000 --num-embeddings 64 --order 3 || true
+for order in 2 3
+do
+echo $sampling_objects $sampling_in_canyon $including_floor $order
+uv run train-path-sampler $sampling_objects $sampling_in_canyon $including_floor --order $order || true
 done
 done
 done
-# IMPORTANT: last iteration failed
+done
