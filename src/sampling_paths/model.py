@@ -4,6 +4,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import jax.random as jr
+from differt.geometry import normalize
 from differt.scene import (
     TriangleScene,
 )
@@ -22,6 +23,8 @@ from .utils import geometric_transformation, unpack_scene
 
 class Model(eqx.Module):
     order: int = eqx.field(static=True)
+    action_pruning: bool = eqx.field(static=True)
+    distance_based_weighting: bool = eqx.field(static=True)
 
     objects_encoder: ObjectsEncoder
     scene_encoder: SceneEncoder
@@ -42,10 +45,18 @@ class Model(eqx.Module):
         num_vertices_per_object: int = 3,
         dropout_rate: float = 0.05,
         epsilon: Float[ArrayLike, ""] = 0.5,
+        action_pruning: bool = False,
+        distance_based_weighting: bool = False,
         inference: bool = False,
         key: PRNGKeyArray,
     ) -> None:
         self.order = order
+        self.action_pruning = action_pruning
+        self.distance_based_weighting = distance_based_weighting
+
+        if action_pruning or distance_based_weighting:
+            msg = "Action pruning and distance-based weighting are not yet implemented."
+            raise NotImplementedError(msg)
 
         self.objects_encoder = ObjectsEncoder(
             num_embeddings=num_embeddings,
@@ -196,6 +207,60 @@ class Model(eqx.Module):
                 )
             else:
                 policy = flow_policy
+
+            if self.action_masking:
+                # Only implemented for second interaction
+                # where second last object is TX
+                is_second_interaction = i == 1
+                previous_object_normal = normalize(
+                    jnp.cross(xyz[previous_object, 0, :], xyz[previous_object, 1, :])
+                )[0]
+
+                previous_object_vertices = xyz[previous_object, :, :]
+                in_vector = previous_object_vertices[
+                    0, :
+                ]  # From TX at (0,0,0) to previous object
+                # [num_objects 3 3 3]
+                out_vectors = (
+                    previous_object_vertices[None, :, None, :] - xyz[:, None, :, :]
+                )  # From all objects to previous object
+                expected_dot_sign = jnp.sign(jnp.dot(in_vector, previous_object_normal))
+                got_dot_sign = jnp.sign(jnp.dot(out_vectors, previous_object_normal))
+                # The object is visible if at least one of its vertices is on the expected side
+                visible = jnp.any(got_dot_sign == expected_dot_sign, axis=(1, 2))
+
+                policy = jnp.where(
+                    is_second_interaction,
+                    jnp.where(visible, policy, 0.0),
+                    policy,
+                )
+
+            if self.distance_based_weighting:
+                centers = xyz.mean(axis=1)
+                previous_object_center = jnp.where(
+                    previous_object != -1,
+                    centers[previous_object],
+                    jnp.zeros(3),  # TX is at (0,0,0) after geometric transformation
+                )
+                d = jnp.linalg.norm(centers - previous_object_center, axis=-1)
+                d += jnp.where(
+                    i == self.order - 1,
+                    jnp.linalg.norm(
+                        centers
+                        - jnp.array(
+                            [0.0, 0.0, 1.0]
+                        ),  # RX is at (0,0,1) after geometric transformation
+                        axis=-1,
+                    ),
+                    0.0,
+                )
+                zero_d = d == 0.0
+                d = jnp.where(zero_d, 1.0, d)
+                w = 1 / (d * d)
+                w = jnp.where((policy > 0) & (~zero_d), w, 0.0)
+                w = jnp.where(w.sum() == 0.0, 1.0, w)
+                w = w / w.sum()
+                policy *= w
 
             if replay is not None:
                 next_object = replay[i]

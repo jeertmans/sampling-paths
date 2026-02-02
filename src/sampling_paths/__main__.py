@@ -163,6 +163,18 @@ def main() -> None:
         help="Whether to always include the floor in the scene.",
     )
     parser.add_argument(
+        "--action-masking",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Whether to use visibility-based action masking when computing the flows.",
+    )
+    parser.add_argument(
+        "--distance-based-weighting",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Whether to use distance-based weighting when computing the flows.",
+    )
+    parser.add_argument(
         "-v",
         "--verbosity",
         default="info",
@@ -190,6 +202,8 @@ def main() -> None:
             depth=args.depth,
             dropout_rate=args.dropout_rate,
             epsilon=args.epsilon,
+            action_masking=args.action_masking,
+            distance_based_weighting=args.distance_based_weighting,
             key=model_key,
         ),
         batch_size=args.batch_size,
@@ -272,10 +286,8 @@ def main() -> None:
 
     if args.save:
         # Create results directory with timestamp
-        timestamp = time.strftime("%Y%m%d-%H%M%S")
-        results_dir = Path(
-            f"results_o{args.order}_n{args.num_embeddings}_d{args.depth}_{timestamp}"
-        )
+        timestamp = time.strftime("results_%Y%m%d-%H%M%S")
+        results_dir = Path(f"{timestamp}")
         results_dir.mkdir(parents=True)
 
         with Path(results_dir / "config.json").open("w", encoding="utf-8") as f:
