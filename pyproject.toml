@@ -78,6 +78,7 @@ isort = {known-first-party = ["sampling_paths", "tests"]}
 [tool.ruff.lint.extend-per-file-ignores]
 "!src/sampling_paths/*.py" = ["D"]
 "src/sampling_paths/*.py" = ["D100", "F401"]
+"src/sampling_paths/__init__.py" = ["D104"]
 "src/sampling_paths/__main__.py" = ["D103"]
 
 [tool.uv.sources]

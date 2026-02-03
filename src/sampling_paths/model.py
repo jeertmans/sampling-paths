@@ -1,4 +1,4 @@
-from typing import Literal, overload
+from typing import Literal, overload, Any, Protocol, runtime_checkable
 
 import equinox as eqx
 import jax
@@ -21,6 +21,28 @@ from .submodels import Flows, ObjectsEncoder, SceneEncoder, StateEncoder
 from .utils import geometric_transformation, unpack_scene
 
 
+@runtime_checkable
+class RewardFn(Protocol):
+    """Protocol for a function that rewards a path candidate."""
+
+    def __call__(
+        self, path_candidate: Int[Array, " order"], scene: TriangleScene, **kwargs: Any
+    ) -> Float[Array, ""]:
+        """
+        Compute the reward for a given path candidate in a scene.
+
+        Args:
+            path_candidate: The path candidate to be rewarded.
+            scene: The scene in which the path candidate exists.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            The reward value for the given path candidate in the scene.
+
+        """
+        ...
+
+
 class Model(eqx.Module):
     """Model to sample path candidates in a scene."""
 
@@ -37,6 +59,7 @@ class Model(eqx.Module):
     epsilon: Float[Array, ""]
     # Static but can be changed
     inference: bool
+    reward: RewardFn
 
     def __init__(
         self,
@@ -46,11 +69,12 @@ class Model(eqx.Module):
         width_size: int,
         depth: int,
         num_vertices_per_object: int = 3,
-        dropout_rate: float = 0.05,
+        dropout_rate: float = 0.0,
         epsilon: Float[ArrayLike, ""] = 0.5,
         action_pruning: bool = False,
         distance_based_weighting: bool = False,
         inference: bool = False,
+        reward_fn: RewardFn = reward_fn,
         key: PRNGKeyArray,
     ) -> None:
         """
@@ -67,6 +91,7 @@ class Model(eqx.Module):
             action_pruning: Whether to use action pruning based on geometric considerations.
             distance_based_weighting: Whether to weight flows based on distances between objects.
             inference: Whether to run in inference mode (disables epsilon-greedy uniform sampling and dropout).
+            reward_fn: The reward function to be used.
             key: The random key to be used.
 
         """
@@ -106,6 +131,7 @@ class Model(eqx.Module):
         self.epsilon = jnp.asarray(epsilon)
 
         self.inference = inference
+        self.reward_fn = reward_fn
 
     @overload
     def __call__(
@@ -296,7 +322,7 @@ class Model(eqx.Module):
 
             reward = jnp.where(
                 i == self.order - 1,
-                reward_fn(partial_path_candidate, scene),
+                self.reward_fn(partial_path_candidate, scene),
                 0.0,
             )
 

@@ -30,7 +30,7 @@ else:
 
 @runtime_checkable
 class SceneFn(Protocol):
-    """Protocol for a function that generates a TriangleScene from a PRNG key."""
+    """Protocol for a function that generates a TriangleScene from a random key."""
 
     def __call__(self, key: PRNGKeyArray, **kwargs: Any) -> TriangleScene:
         """
