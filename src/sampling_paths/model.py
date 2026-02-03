@@ -1,4 +1,5 @@
-from typing import Literal, overload, Any, Protocol, runtime_checkable
+from pathlib import Path
+from typing import Literal, overload, Any, BinaryIO, Protocol, runtime_checkable
 
 import equinox as eqx
 import jax
@@ -59,7 +60,7 @@ class Model(eqx.Module):
     epsilon: Float[Array, ""]
     # Static but can be changed
     inference: bool
-    reward: RewardFn
+    reward_fn: RewardFn
 
     def __init__(
         self,
@@ -379,3 +380,21 @@ class Model(eqx.Module):
             return path_candidate
 
         return path_candidate, loss_value, rewards[-1]
+
+    @classmethod
+    def load_weights(cls, path: str | Path | BinaryIO, **kwargs: Any) -> "Model":
+        """
+        Load a model from a file.
+        
+        Args:
+            path: Path to the file from which to load the model's weights.
+            kwargs: Additional keyword arguments to initialize the model.
+                Except for the `key` argument, which will be set to a default value if not provided,
+                all required arguments to initialize the model must be provided.
+        Returns:
+            The loaded model.
+
+        """
+        kwargs.setdefault("key", jr.PRNGKey(0))
+        model = eqx.filter_eval_shape(Model, **kwargs)
+        return eqx.tree_deserialise_leaves(path, model)
