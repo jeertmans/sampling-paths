@@ -48,7 +48,7 @@ class Model(eqx.Module):
 
     # Static
     order: int = eqx.field(static=True)
-    action_pruning: bool = eqx.field(static=True)
+    action_masking: bool = eqx.field(static=True)
     distance_based_weighting: bool = eqx.field(static=True)
     # Trainable
     objects_encoder: ObjectsEncoder
@@ -71,7 +71,7 @@ class Model(eqx.Module):
         num_vertices_per_object: int = 3,
         dropout_rate: float = 0.0,
         epsilon: Float[ArrayLike, ""] = 0.5,
-        action_pruning: bool = False,
+        action_masking: bool = False,
         distance_based_weighting: bool = False,
         inference: bool = False,
         reward_fn: RewardFn = reward_fn,
@@ -96,7 +96,7 @@ class Model(eqx.Module):
 
         """
         self.order = order
-        self.action_pruning = action_pruning
+        self.action_masking = action_masking
         self.distance_based_weighting = distance_based_weighting
 
         self.objects_encoder = ObjectsEncoder(

@@ -1,13 +1,11 @@
-for sampling_objects in "--sample-objects" "--no-sample-objects"
+for order in 1 2 3
 do
-for sampling_in_canyon in "--sample-in-canyon" "--no-sample-in-canyon"
+for action_masking in "--action-masking" "--no-action-masking"
 do
-for including_floor in "--include-floor" "--no-include-floor"
+for distance_based_weighting in "--distance-based-weighting" "--no-distance-based-weighting"
 do
-for order in 2 3
-do
-echo $sampling_objects $sampling_in_canyon $including_floor $order
-uv run train-path-sampler $sampling_objects $sampling_in_canyon $including_floor --order $order || true
+echo $order $action_masking $distance_based_weighting
+uv run train-path-sampler $action_masking $distance_based_weighting --order $order || true
 done
 done
 done
