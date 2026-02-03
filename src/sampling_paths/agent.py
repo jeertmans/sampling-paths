@@ -46,6 +46,7 @@ class SceneFn(Protocol):
         """
         ...
 
+
 def batch_loss(
     model: Model,
     scene_key: PRNGKeyArray,
@@ -315,7 +316,11 @@ class Agent(eqx.Module):
             if self.replay_symmetric:
                 # Also compute gradients for symmetric paths
                 replay_grads_symmetric = eqx.filter_grad(
-                    partial(replay_loss, scene_fn=self.scene_fn, replay_symmetric=True),
+                    partial(
+                        replay_loss,
+                        scene_fn=self.scene_fn,
+                        replay_symmetric=True,
+                    ),
                 )(
                     self.model,
                     scene_keys,

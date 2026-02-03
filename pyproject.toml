@@ -67,9 +67,6 @@ markers = [
   "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
 
-[tool.ruff]
-extend-include = ["*.ipynb"]
-
 [tool.ruff.format]
 docstring-code-format = true
 
