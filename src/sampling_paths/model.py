@@ -49,7 +49,7 @@ class Model(eqx.Module):
 
     # Static
     order: int = eqx.field(static=True)
-    action_pruning: bool = eqx.field(static=True)
+    action_masking: bool = eqx.field(static=True)
     distance_based_weighting: bool = eqx.field(static=True)
     # Trainable
     objects_encoder: ObjectsEncoder
@@ -72,7 +72,7 @@ class Model(eqx.Module):
         num_vertices_per_object: int = 3,
         dropout_rate: float = 0.0,
         epsilon: Float[ArrayLike, ""] = 0.5,
-        action_pruning: bool = False,
+        action_masking: bool = False,
         distance_based_weighting: bool = False,
         inference: bool = False,
         reward_fn: RewardFn = reward_fn,
@@ -89,7 +89,7 @@ class Model(eqx.Module):
             num_vertices_per_object: Number of vertices per object (default is 3 for triangles).
             dropout_rate: Dropout rate to be used in the flows model.
             epsilon: Epsilon value for epsilon-greedy uniform sampling.
-            action_pruning: Whether to use action pruning based on geometric considerations.
+            action_masking: Whether to use action masking based on visibility considerations.
             distance_based_weighting: Whether to weight flows based on distances between objects.
             inference: Whether to run in inference mode (disables epsilon-greedy uniform sampling and dropout).
             reward_fn: The reward function to be used.
@@ -97,7 +97,7 @@ class Model(eqx.Module):
 
         """
         self.order = order
-        self.action_pruning = action_pruning
+        self.action_masking = action_masking
         self.distance_based_weighting = distance_based_weighting
 
         self.objects_encoder = ObjectsEncoder(
@@ -155,6 +155,20 @@ class Model(eqx.Module):
         inference: Literal[False],
         key: PRNGKeyArray,
     ) -> tuple[Int[Array, " order"], Float[Array, ""], Float[Array, ""]]: ...
+
+    @overload
+    def __call__(
+        self,
+        scene: TriangleScene,
+        *,
+        replay: Int[Array, " order"] | None = ...,
+        replay_symettric: bool = ...,
+        inference: None = ...,
+        key: PRNGKeyArray,
+    ) -> (
+        Int[Array, " order"]
+        | tuple[Int[Array, " order"], Float[Array, ""], Float[Array, ""]]
+    ): ...
 
     def __call__(
         self,
