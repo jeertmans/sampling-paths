@@ -22,17 +22,20 @@ from .utils import geometric_transformation, unpack_scene
 
 
 class Model(eqx.Module):
+    """Model to sample path candidates in a scene."""
+
+    # Static
     order: int = eqx.field(static=True)
     action_pruning: bool = eqx.field(static=True)
     distance_based_weighting: bool = eqx.field(static=True)
-
+    # Trainable
     objects_encoder: ObjectsEncoder
     scene_encoder: SceneEncoder
     state_encoder: StateEncoder
     flows: Flows
-
+    # Training
     epsilon: Float[Array, ""]
-
+    # Static but can be changed
     inference: bool
 
     def __init__(
@@ -50,13 +53,26 @@ class Model(eqx.Module):
         inference: bool = False,
         key: PRNGKeyArray,
     ) -> None:
+        """
+        Initialize the model.
+
+        Args:
+            order: The order (length) of the path candidates to be sampled.
+            num_embeddings: Number of embeddings for objects, scene, and state.
+            width_size: Width of the hidden layers in the MLPs.
+            depth: Number of hidden layers in the MLPs.
+            num_vertices_per_object: Number of vertices per object (default is 3 for triangles).
+            dropout_rate: Dropout rate to be used in the flows model.
+            epsilon: Epsilon value for epsilon-greedy uniform sampling.
+            action_pruning: Whether to use action pruning based on geometric considerations.
+            distance_based_weighting: Whether to weight flows based on distances between objects.
+            inference: Whether to run in inference mode (disables epsilon-greedy uniform sampling and dropout).
+            key: The random key to be used.
+
+        """
         self.order = order
         self.action_pruning = action_pruning
         self.distance_based_weighting = distance_based_weighting
-
-        if action_pruning or distance_based_weighting:
-            msg = "Action pruning and distance-based weighting are not yet implemented."
-            raise NotImplementedError(msg)
 
         self.objects_encoder = ObjectsEncoder(
             num_embeddings=num_embeddings,
@@ -136,8 +152,8 @@ class Model(eqx.Module):
             key: PRNG key for randomness.
 
         Returns:
-            If inference is True, returns the sampled path candidate as an array of integers.
-            If inference is False, returns a tuple containing the sampled path candidate, the loss value, and the reward.
+            If inference is True, return the sampled path candidate as an array of integers.
+            If inference is False, return a tuple containing the sampled path candidate, the loss value, and the reward.
 
         """
         inference = self.inference if inference is None else inference
@@ -337,80 +353,3 @@ class Model(eqx.Module):
             return path_candidate
 
         return path_candidate, loss_value, rewards[-1]
-
-        msg = "Should never reach here"
-        raise ValueError(msg)
-
-        # [num_embeddings]
-        self.state_encoder(partial_path_candidate, objects_embeds)
-
-        # Calculate relative vectors from last object center
-        rx = scene.receivers.reshape(3)
-        tx = scene.transmitters.reshape(3)
-        basis, scale = basis_for_canonical_frame(tx, rx)
-
-        object_centers = scene.mesh.triangle_vertices.mean(axis=-2)
-        # Transform centers to canonical frame
-        object_centers = (object_centers - tx) / scale @ basis.T
-
-        last_object_center = jnp.where(
-            last_object != -1,
-            object_centers[last_object],
-            jnp.zeros(3),  # Since we translated by tx, tx is at origin (0,0,0)
-        )
-
-        # [num_objects 3]
-        object_centers - last_object_center
-
-        # [num_objects]
-        flows = jax.vmap(
-            lambda object_embeds, pc_embeds, scene_embeds: self.head(
-                jnp.concat(
-                    (object_embeds, pc_embeds, scene_embeds),
-                    axis=0,
-                ),
-            ),
-            in_axes=(0, None, None),
-        )(objects_embeds, pc_embeds, scene_embeds)
-
-        # Stop flow from flowing to masked objects
-        mask = (
-            jnp.ones_like(flows).astype(bool)
-            if scene.mesh.mask is None
-            else scene.mesh.mask
-        )
-
-        # Stop flow from flowing to same object again
-        mask = mask.at[last_object].set(False, wrap_negative_indices=False)
-
-        # Stop flow from flowing to unreachable objects
-        object_centers = scene.mesh.triangle_vertices.mean(axis=-2)
-        object_normals = scene.mesh.normals
-
-        mask &= jnp.where(
-            last_object == -1,
-            triangles_visible_from_vertices(
-                scene.transmitters,
-                scene.mesh.triangle_vertices,
-            ),
-            True,
-        )
-
-        flows = jnp.where(mask, flows, 0.0)
-
-        if False:
-            tx_to_object = object_centers - scene.transmitters.reshape(3)
-            rx_to_object = object_centers - scene.receivers.reshape(3)
-
-            same_side_of_objects = jnp.sign(
-                jnp.sum(tx_to_object * object_normals, axis=-1),
-            ) == jnp.sign(jnp.sum(rx_to_object * object_normals, axis=-1))
-
-            flows = jnp.where(same_side_of_objects, flows, 0.0)
-            r = jnp.linalg.norm(tx_to_object, axis=-1) + jnp.linalg.norm(
-                rx_to_object,
-                axis=-1,
-            )
-            flows *= jax.nn.softmax(-r, where=scene.mesh.mask)
-
-        return self.dropout(flows, key=key, inference=inference)

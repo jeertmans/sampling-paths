@@ -27,6 +27,17 @@ class ObjectsEncoder(eqx.Module):
         *,
         key: PRNGKeyArray,
     ) -> None:
+        """
+        Initialize the objects encoder.
+
+        Args:
+            num_embeddings: Number of output embeddings per object.
+            width_size: Width of the hidden layers in the MLP.
+            depth: Number of hidden layers in the MLP.
+            num_vertices_per_object: Number of vertices per object (default is 3 for triangles).
+            key: The random key to be used.
+
+        """
         self.out_size = num_embeddings
 
         self.mlp = eqx.nn.MLP(
@@ -44,6 +55,19 @@ class ObjectsEncoder(eqx.Module):
         active_objects: Bool[Array, " num_objects"] | None = None,
         key: PRNGKeyArray | None = None,
     ) -> Float[Array, "num_objects num_embeddings"]:
+        """
+        Encode objects into embeddings.
+
+        Args:
+            xyz: The vertices of the objects to be encoded.
+            active_objects: Boolean array indicating which objects are active.
+            key: The random key to be used.
+                Unused here.
+
+        Returns:
+            The embeddings for each object.
+
+        """
         del key
         embeds = jax.vmap(self.mlp)(xyz.reshape(xyz.shape[0], -1))
         if active_objects is not None:
@@ -66,6 +90,16 @@ class SceneEncoder(eqx.Module):
         *,
         key: PRNGKeyArray,
     ) -> None:
+        """
+        Initialize the scene encoder.
+
+        Args:
+            num_embeddings: Number of output embeddings per object.
+            width_size: Width of the hidden layers in the MLP.
+            depth: Number of hidden layers in the MLP.
+            key: The random key to be used.
+
+        """
         self.out_size = num_embeddings
         self.rho = eqx.nn.MLP(
             in_size=num_embeddings,
@@ -82,6 +116,19 @@ class SceneEncoder(eqx.Module):
         active_objects: Bool[Array, " num_objects"] | None = None,
         key: PRNGKeyArray | None = None,
     ) -> Float[Array, " num_embeddings"]:
+        """
+        Encode a scene into embeddings.
+
+        Args:
+            objects_embeds: The embeddings of the objects in the scene.
+            active_objects: Boolean array indicating which objects are active.
+            key: The random key to be used.
+                Unused here.
+
+        Returns:
+            The embeddings of the scene.
+
+        """
         del key
         return self.rho(
             objects_embeds.mean(
@@ -105,6 +152,15 @@ class StateEncoder(eqx.Module):
         *,
         key: PRNGKeyArray,
     ) -> None:
+        """
+        Initialize the state encoder.
+
+        Args:
+            order: The path order.
+            num_embeddings: Number of output embeddings per state.
+            key: The random key to be used.
+
+        """
         self.out_size = order * num_embeddings
 
         self.linear = eqx.nn.Linear(
@@ -121,6 +177,21 @@ class StateEncoder(eqx.Module):
         active_objects: Bool[Array, " num_objects"] | None = None,
         key: PRNGKeyArray | None = None,
     ) -> Float[Array, " out_size"]:
+        """
+        Encode a path candidate (state) into embeddings.
+
+        Args:
+            partial_path_candidate: The indices of the objects in the partial path candidate.
+            objects_embeds: The embeddings of the objects in the scene.
+            active_objects: Boolean array indicating which objects are active.
+            key: The random key to be used.
+                Unused here.
+
+        Returns:
+            The embeddings of the path candidate.
+
+        """
+        # N.B.: objects_embeds are already masked, so we do not need to use active_objects here
         del active_objects, key
         return self.linear(
             objects_embeds.at[partial_path_candidate]
@@ -145,6 +216,18 @@ class Flows(eqx.Module):
         inference: bool = False,
         key: PRNGKeyArray,
     ) -> None:
+        """
+        Initialize the flows module.
+
+        Args:
+            in_size: The input size.
+            width_size: Width of the hidden layers in the MLP.
+            depth: Number of hidden layers in the MLP.
+            dropout_rate: Dropout rate to be used.
+            inference: Whether to run in inference mode (disables dropout).
+            key: The random key to be used.
+
+        """
         self.mlp = eqx.nn.MLP(
             in_size=in_size,
             out_size="scalar",
@@ -175,7 +258,8 @@ class Flows(eqx.Module):
             state_embeds: Embeddings for the current partial path candidate.
             active_objects: Boolean array indicating which objects are active.
             inference: Whether to run in inference mode (disables dropout).
-            key: PRNG key for randomness (used in dropout), only required if not in inference mode.
+            key: The random key to be used.
+                Only required if not in inference mode.
 
         Returns:
             Unnormalized probabilities (flows) for each object.

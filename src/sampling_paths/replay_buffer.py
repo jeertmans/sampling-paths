@@ -21,19 +21,14 @@ else:
 class ReplayBuffer(eqx.Module):
     """A buffer to store successful experiences and replay them during training."""
 
+    # Static
     capacity: int = eqx.field(static=True)
-    """Maximum number of experiences to store in the buffer."""
     sample_with_replacement: bool = eqx.field(static=True)
-    """Whether to sample with replacement from the buffer."""
 
     scene_keys: Key[Array, " capacity"]
-    """Keys to re-generate the scenes."""
     path_candidates: Int[Array, "capacity order"]
-    """Sampled path candidates."""
     rewards: Float[Array, " capacity"]
-    """Rewards obtained for the sampled path candidates."""
     counter: Int[Array, " "]
-    """Counter to keep track of the number of stored experiences."""
 
     def __init__(
         self,
@@ -42,6 +37,16 @@ class ReplayBuffer(eqx.Module):
         sample_with_replacement: bool,
         scene_key_dtype: Any,
     ) -> None:
+        """
+        Initialize the replay buffer.
+
+        Args:
+            capacity: Maximum number of experiences to store in the buffer.
+            order: The order (length) of the path candidates.
+            sample_with_replacement: Whether to sample with replacement from the buffer.
+            scene_key_dtype: The data type of the scene keys.
+
+        """
         self.capacity = capacity
         self.sample_with_replacement = sample_with_replacement
 
@@ -141,6 +146,17 @@ class ReplayBuffer(eqx.Module):
         Int[Array, " batch_size order"],
         Float[Array, " batch_size"],
     ]:
+        """
+        Sample a batch of experiences from the replay buffer.
+
+        Args:
+            batch_size: Number of experiences to sample.
+            key: The random key to be used.
+
+        Returns:
+            A batch of sampled experiences: scene keys, path candidates, and rewards.
+
+        """
         # JIT-friendly way of sampling indices up to min(counter, capacity)
         indices = jnp.arange(self.capacity)
         p = self.rewards > 0.0

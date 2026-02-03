@@ -30,8 +30,21 @@ else:
 
 @runtime_checkable
 class SceneFn(Protocol):
-    def __call__(self, key: PRNGKeyArray, **kwargs: Any) -> TriangleScene: ...
+    """Protocol for a function that generates a TriangleScene from a PRNG key."""
 
+    def __call__(self, key: PRNGKeyArray, **kwargs: Any) -> TriangleScene:
+        """
+        Generate a TriangleScene from a PRNG key.
+
+        Args:
+            key: The random key to be used.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            A TriangleScene object.
+
+        """
+        ...
 
 def batch_loss(
     model: Model,
@@ -43,6 +56,19 @@ def batch_loss(
     Float[Array, ""],
     tuple[Int[Array, "batch_size order"], Float[Array, " batch_size"]],
 ]:
+    """
+    Compute the average loss over a batch of scenes generated from the given scene key.
+
+    Args:
+        model: The model to be evaluated.
+        scene_key: The key to generate the scene.
+        keys: The keys to use for generating path candidates.
+        scene_fn: Function to generate scenes from random keys.
+
+    Returns:
+        The average loss value and a tuple containing the path candidates and their rewards.
+
+    """
     path_candidates, loss_values, rewards = jax.vmap(
         lambda key: model(scene_fn(key=scene_key), inference=False, key=key),
     )(keys)
@@ -60,6 +86,20 @@ def replay_loss(
     scene_fn: SceneFn,
     replay_symmetric: bool = False,
 ) -> Float[Array, ""]:
+    """
+    Compute the average loss over replayed experiences.
+
+    Args:
+        model: The model to be evaluated.
+        scene_keys: The keys to generate the scenes.
+        path_candidates: The path candidates to be replayed.
+        scene_fn: Function to generate scenes from random keys.
+        replay_symmetric: Whether to replay symmetric paths (swap transmitters and receivers).
+
+    Returns:
+        The average loss value.
+
+    """
     # N.B.: we don't use the rewards from the replay buffer:
     # while they should equal the ones obtained by the model,
     # we observe that sometime a false 'successful' reward is stored (??).
@@ -113,7 +153,7 @@ def decrease_epsilon(
         min_epsilon: The minimum value that epsilon can take.
 
     Returns:
-        An Optax GradientTransformation that decreases epsilon.
+        An Optax gradient transformation that decreases epsilon.
 
     """
 
@@ -143,9 +183,7 @@ class Agent(eqx.Module):
 
     # Static
     batch_size: int = eqx.field(static=True)
-    """Number of path candidates to sample per training step."""
     replay_symmetric: bool = eqx.field(static=True)
-    """Whether to replay symmetric paths (swap transmitters and receivers) from the replay buffer."""
     # Static but can be changed
     scene_fn: SceneFn
     # Learned
@@ -155,15 +193,7 @@ class Agent(eqx.Module):
     opt_state: optax.OptState
     steps_count: Int[Array, ""]
     replay_buffer: ReplayBuffer | None
-    """Optional replay buffer to store successful experiences and use them for training."""
     alpha: Float[Array, ""]
-    """
-    Weighting factor for the replay loss function.
-
-    A value of 0.5 means that the replay loss and the new experience loss are weighted equally.
-    A value of 0.0 means that only the new experience loss is used.
-    A value of 1.0 means that only the replay loss is used.
-    """
 
     def __init__(
         self,
@@ -179,6 +209,25 @@ class Agent(eqx.Module):
         alpha: Float[ArrayLike, ""] = 0.5,
         scene_fn: SceneFn = random_scene,
     ) -> None:
+        """
+        Initialize the agent.
+
+        Args:
+            model: The model to be trained.
+            batch_size: Number of path candidates to sample per training step.
+            optim: The optimizer to use. If None, Adam with learning rate 3e-5 is used.
+            delta_epsilon: The amount by which to decrease epsilon at each step.
+            min_epsilon: The minimum value that epsilon can take.
+            replay_buffer_capacity: The capacity of the replay buffer. If None, no replay buffer is used.
+            replay_with_replacement: Whether to sample with replacement from the replay buffer.
+            replay_symmetric: Whether to replay symmetric paths (swap transmitters and receivers) from the replay buffer.
+            alpha: Weighting factor for the replay loss function.
+                A value of 0.5 means that the replay loss and the new experience loss are weighted equally.
+                A value of 0.0 means that only the new experience loss is used.
+                A value of 1.0 means that only the replay loss is used.
+            scene_fn: Function to generate scenes from random keys.
+
+        """
         self.batch_size = batch_size
         self.replay_symmetric = replay_symmetric
         self.scene_fn = scene_fn

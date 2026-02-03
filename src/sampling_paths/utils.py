@@ -143,7 +143,8 @@ def validation_scene_keys(
         key: The random key to be used.
 
     Returns:
-        A fixed set of scene keys, for which the corresponding scenes contain valid paths of the given order.
+        A fixed set of scene keys, for which the corresponding scenes contain
+        at least one valid path of the given order.
 
     """
 
