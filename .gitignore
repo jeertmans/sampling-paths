@@ -1,1 +1,5 @@
+# Python cache files
 *.pyc
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
