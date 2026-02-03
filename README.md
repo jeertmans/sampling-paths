@@ -50,4 +50,4 @@ TODO
 [arxiv-badge]: https://img.shields.io/badge/arXiv-2510.16172-b31b1b.svg
 [arxiv-url]: https://arxiv.org/abs/2510.16172
 [colab-badge]: https://colab.research.google.com/assets/colab-badge.svg
-[colab-url]: https://colab.research.google.com/github/jeertmans/sampling-paths/blob/main/tutorial.ipynb
+[colab-url]: https://colab.research.google.com/github/jeertmans/sampling-paths/blob/main/notebooks/tutorial.ipynb
