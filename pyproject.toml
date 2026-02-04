@@ -72,7 +72,7 @@ docstring-code-format = true
 
 [tool.ruff.lint]
 extend-ignore = ["D203", "D212", "F722"]
-extend-select = ["D"]
+extend-select = ["D", "I"]
 isort = {known-first-party = ["sampling_paths", "tests"]}
 
 [tool.ruff.lint.extend-per-file-ignores]
