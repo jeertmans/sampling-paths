@@ -36,7 +36,9 @@ class TestAgent:
                 return eqx.tree_at(
                     lambda x: x.mesh.mask,
                     scene,
-                    jnp.zeros_like(scene.mesh.mask),  # type: ignore[invalid-argument-type]
+                    jnp.zeros_like(scene.mesh.mask)
+                    if scene.mesh.mask is not None
+                    else jnp.zeros(scene.mesh.num_triangles, dtype=bool),
                 )
 
         else:
@@ -64,8 +66,8 @@ class TestAgent:
         paths = scene.compute_paths(path_candidates=path_candidates)
         valid_paths = scene.compute_paths(order=agent.model.order).masked()
 
-        if paths.mask.astype(float).mean() < target_accuracy:  # type: ignore[possibly-missing-attribute]
-            invalid_paths = path_candidates[~paths.mask, :]  # type: ignore[unsupported-operator]
+        if paths.mask.astype(float).mean() < target_accuracy:
+            invalid_paths = path_candidates[~paths.mask, :]
             per_invalid = 100 * invalid_paths.shape[0] / path_candidates.shape[0]
             msg = (
                 f"Agent trained model (final loss: {loss:.2e}) "

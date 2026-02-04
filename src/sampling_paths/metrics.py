@@ -6,26 +6,26 @@ from jaxtyping import Array, Float, Int
 
 
 def reward_fn(
-    predicted_path_candidates: Int[Array, "*batch order"],
+    path_candidates: Int[Array, "*batch order"],
     scene: TriangleScene,
 ) -> Float[Array, "*batch"]:
     """
-    Reward predicted path candidates depending on whether it produces a valid path in the given scene.
+    Reward path candidates depending on whether it produces a valid path in the given scene.
 
     Args:
-        predicted_path_candidates: The path candidates to evaluate.
+        path_candidates: The path candidates to evaluate.
         scene: The scene on which to evaluate the path candidates.
 
     Returns:
         A reward of 0 or 1 for each path candidate.
 
     """
-    *batch, order = predicted_path_candidates.shape
+    *batch, order = path_candidates.shape
     p = math.prod(batch)
     if p == 0:
         return jnp.zeros(batch)
-    r = scene.compute_paths(  # type: ignore[possibly-missing-attribute]
-        path_candidates=predicted_path_candidates.reshape(p, order),
+    r = scene.compute_paths(
+        path_candidates=path_candidates.reshape(p, order),
     ).mask.astype(float)
 
     return r.reshape(*batch)
@@ -49,7 +49,7 @@ def accuracy(
     if predicted_path_candidates.shape[0] == 0:
         return jnp.zeros(())
     paths = scene.compute_paths(path_candidates=predicted_path_candidates)
-    return paths.mask.astype(float).mean()  # type: ignore[possibly-missing-attribute]
+    return paths.mask.astype(float).mean()
 
 
 def hit_rate(
@@ -73,7 +73,7 @@ def hit_rate(
         return jnp.zeros(())
     paths = scene.compute_paths(path_candidates=predicted_path_candidates)
     num_paths_found = paths.mask_duplicate_objects().mask.astype(float).sum()
-    num_paths_total = scene.compute_paths(order=order).mask.astype(float).sum()  # type: ignore[possibly-missing-attribute]
+    num_paths_total = scene.compute_paths(order=order).mask.astype(float).sum()
     no_valid_paths = num_paths_total == 0
     num_paths_total = jnp.where(no_valid_paths, 1.0, num_paths_total)
     return jnp.where(no_valid_paths, 1.0, num_paths_found / num_paths_total)

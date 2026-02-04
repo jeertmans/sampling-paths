@@ -1,4 +1,5 @@
-from typing import Literal, overload, Any, Protocol, runtime_checkable
+from pathlib import Path
+from typing import Literal, overload, Any, BinaryIO, Protocol, runtime_checkable
 
 import equinox as eqx
 import jax
@@ -16,7 +17,7 @@ from jaxtyping import (
     PRNGKeyArray,
 )
 
-from .metrics import reward_fn
+from .metrics import reward_fn as default_reward_fn
 from .submodels import Flows, ObjectsEncoder, SceneEncoder, StateEncoder
 from .utils import geometric_transformation, unpack_scene
 
@@ -74,7 +75,7 @@ class Model(eqx.Module):
         action_masking: bool = False,
         distance_based_weighting: bool = False,
         inference: bool = False,
-        reward_fn: RewardFn = reward_fn,
+        reward_fn: RewardFn = default_reward_fn,
         key: PRNGKeyArray,
     ) -> None:
         """
@@ -88,7 +89,7 @@ class Model(eqx.Module):
             num_vertices_per_object: Number of vertices per object (default is 3 for triangles).
             dropout_rate: Dropout rate to be used in the flows model.
             epsilon: Epsilon value for epsilon-greedy uniform sampling.
-            action_pruning: Whether to use action pruning based on geometric considerations.
+            action_masking: Whether to use action masking based on visibility considerations.
             distance_based_weighting: Whether to weight flows based on distances between objects.
             inference: Whether to run in inference mode (disables epsilon-greedy uniform sampling and dropout).
             reward_fn: The reward function to be used.
@@ -154,6 +155,20 @@ class Model(eqx.Module):
         inference: Literal[False],
         key: PRNGKeyArray,
     ) -> tuple[Int[Array, " order"], Float[Array, ""], Float[Array, ""]]: ...
+
+    @overload
+    def __call__(
+        self,
+        scene: TriangleScene,
+        *,
+        replay: Int[Array, " order"] | None = ...,
+        replay_symettric: bool = ...,
+        inference: bool | None = ...,
+        key: PRNGKeyArray,
+    ) -> (
+        Int[Array, " order"]
+        | tuple[Int[Array, " order"], Float[Array, ""], Float[Array, ""]]
+    ): ...
 
     def __call__(
         self,
@@ -379,3 +394,22 @@ class Model(eqx.Module):
             return path_candidate
 
         return path_candidate, loss_value, rewards[-1]
+
+    @classmethod
+    def load_weights(cls, path: str | Path | BinaryIO, **kwargs: Any) -> "Model":
+        """
+        Load a model from a file.
+
+        Args:
+            path: Path to the file from which to load the model's weights.
+            kwargs: Additional keyword arguments to initialize the model.
+                Except for the `key` argument, which will be set to a default value if not provided,
+                all required arguments to initialize the model must be provided.
+
+        Returns:
+            The loaded model.
+
+        """
+        kwargs.setdefault("key", jr.PRNGKey(0))
+        model = eqx.filter_eval_shape(Model, **kwargs)
+        return eqx.tree_deserialise_leaves(path, model)
