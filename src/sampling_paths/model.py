@@ -17,7 +17,7 @@ from jaxtyping import (
     PRNGKeyArray,
 )
 
-from .metrics import reward_fn
+from .metrics import reward_fn as default_reward_fn
 from .submodels import Flows, ObjectsEncoder, SceneEncoder, StateEncoder
 from .utils import geometric_transformation, unpack_scene
 
@@ -75,7 +75,7 @@ class Model(eqx.Module):
         action_masking: bool = False,
         distance_based_weighting: bool = False,
         inference: bool = False,
-        reward_fn: RewardFn = reward_fn,
+        reward_fn: RewardFn = default_reward_fn,
         key: PRNGKeyArray,
     ) -> None:
         """
@@ -163,7 +163,7 @@ class Model(eqx.Module):
         *,
         replay: Int[Array, " order"] | None = ...,
         replay_symettric: bool = ...,
-        inference: None = ...,
+        inference: bool | None = ...,
         key: PRNGKeyArray,
     ) -> (
         Int[Array, " order"]
@@ -399,12 +399,13 @@ class Model(eqx.Module):
     def load_weights(cls, path: str | Path | BinaryIO, **kwargs: Any) -> "Model":
         """
         Load a model from a file.
-        
+
         Args:
             path: Path to the file from which to load the model's weights.
             kwargs: Additional keyword arguments to initialize the model.
                 Except for the `key` argument, which will be set to a default value if not provided,
                 all required arguments to initialize the model must be provided.
+
         Returns:
             The loaded model.
 

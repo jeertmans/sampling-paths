@@ -6,26 +6,26 @@ from jaxtyping import Array, Float, Int
 
 
 def reward_fn(
-    predicted_path_candidates: Int[Array, "*batch order"],
+    path_candidates: Int[Array, "*batch order"],
     scene: TriangleScene,
 ) -> Float[Array, "*batch"]:
     """
-    Reward predicted path candidates depending on whether it produces a valid path in the given scene.
+    Reward path candidates depending on whether it produces a valid path in the given scene.
 
     Args:
-        predicted_path_candidates: The path candidates to evaluate.
+        path_candidates: The path candidates to evaluate.
         scene: The scene on which to evaluate the path candidates.
 
     Returns:
         A reward of 0 or 1 for each path candidate.
 
     """
-    *batch, order = predicted_path_candidates.shape
+    *batch, order = path_candidates.shape
     p = math.prod(batch)
     if p == 0:
         return jnp.zeros(batch)
     r = scene.compute_paths(  # type: ignore[possibly-missing-attribute]
-        path_candidates=predicted_path_candidates.reshape(p, order),
+        path_candidates=path_candidates.reshape(p, order),
     ).mask.astype(float)
 
     return r.reshape(*batch)
