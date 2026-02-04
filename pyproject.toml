@@ -82,4 +82,4 @@ isort = {known-first-party = ["sampling_paths", "tests"]}
 "src/sampling_paths/__main__.py" = ["D103"]
 
 [tool.uv.sources]
-differt = {path = "../DiffeRT/DiffeRT/differt"}  # TODO: remove this
+differt = {path = "../DiffeRT/differt"}  # TODO: remove this

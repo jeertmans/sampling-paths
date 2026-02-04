@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -552,7 +552,7 @@ wheels = [
 
 [[package]]
 name = "differt"
-source = { directory = "../DiffeRT/DiffeRT/differt" }
+source = { directory = "../DiffeRT/differt" }
 dependencies = [
     { name = "chex" },
     { name = "differt-core" },
@@ -569,7 +569,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "chex", specifier = ">=0.1.86" },
-    { name = "differt-core", editable = "../DiffeRT/DiffeRT/differt-core" },
+    { name = "differt-core", editable = "../DiffeRT/differt-core" },
     { name = "equinox", specifier = ">=0.13.4" },
     { name = "filelock", specifier = ">=3.15.4" },
     { name = "fpt-jax", specifier = "==0.1.0" },
@@ -599,7 +599,7 @@ provides-extras = ["all", "jupyter", "matplotlib", "plotly", "vispy", "vispy-bac
 
 [[package]]
 name = "differt-core"
-source = { editable = "../DiffeRT/DiffeRT/differt-core" }
+source = { editable = "../DiffeRT/differt-core" }
 dependencies = [
     { name = "numpy" },
 ]
@@ -2747,7 +2747,7 @@ tests = [
 
 [package.metadata]
 requires-dist = [
-    { name = "differt", directory = "../DiffeRT/DiffeRT/differt" },
+    { name = "differt", directory = "../DiffeRT/differt" },
     { name = "equinox", specifier = ">=0.13.4" },
     { name = "jax", specifier = ">=0.9.0" },
     { name = "jaxtyping", specifier = ">=0.3.6" },
