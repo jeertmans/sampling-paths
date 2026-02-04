@@ -59,7 +59,7 @@ class Model(eqx.Module):
     epsilon: Float[Array, ""]
     # Static but can be changed
     inference: bool
-    reward: RewardFn
+    reward_fn: RewardFn
 
     def __init__(
         self,
