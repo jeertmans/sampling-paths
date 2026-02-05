@@ -186,9 +186,13 @@ def basis_for_canonical_frame(
     """
     w, scale = normalize(rx - tx)
     ref_axis = jnp.array([0.0, 0.0, 1.0])
-    u, _ = normalize(jnp.cross(w, ref_axis))
-    v, _ = normalize(jnp.cross(w, u))
-    return jnp.stack((u, v, w)), scale
+    u, s1 = normalize(jnp.cross(w, ref_axis))
+    v, s2 = normalize(jnp.cross(w, u))
+    basis = jnp.stack((u, v, w))
+    # Handle degenerate cases where tx and rx are aligned with the z-axis
+    # by applying reflection in the xy-plane
+    basis = jnp.where((s1 == 0.0) | (s2 == 0.0), jnp.eye(3).at[2, 2].set(-1), basis)
+    return basis, scale
 
 
 def geometric_transformation(
@@ -213,7 +217,7 @@ def geometric_transformation(
     basis, scale = basis_for_canonical_frame(tx, rx)
     xyz -= tx
     xyz /= scale
-    return xyz @ basis.T
+    return jnp.matvec(basis, xyz)
 
 
 def unpack_scene(

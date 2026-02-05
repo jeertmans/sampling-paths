@@ -2744,6 +2744,7 @@ dev = [
     { name = "chex" },
     { name = "ipywidgets" },
     { name = "jupyterlab" },
+    { name = "plotly" },
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-env" },
@@ -2751,11 +2752,9 @@ dev = [
     { name = "treescope" },
     { name = "ty" },
 ]
-notebook = [
-    { name = "plotly" },
-]
 notebooks = [
     { name = "ipywidgets" },
+    { name = "plotly" },
     { name = "treescope" },
 ]
 tests = [
@@ -2785,6 +2784,7 @@ dev = [
     { name = "chex", specifier = ">=0.1.91" },
     { name = "ipywidgets", specifier = ">=8.1.8" },
     { name = "jupyterlab", specifier = ">=4.5.3" },
+    { name = "plotly", specifier = ">=6.5.2" },
     { name = "pre-commit", specifier = ">=4.5.1" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "pytest-env", specifier = ">=1.2.0" },
@@ -2792,9 +2792,9 @@ dev = [
     { name = "treescope", specifier = ">=0.1.10" },
     { name = "ty", specifier = ">=0.0.14" },
 ]
-notebook = [{ name = "plotly", specifier = ">=6.5.2" }]
 notebooks = [
     { name = "ipywidgets", specifier = ">=8.1.8" },
+    { name = "plotly", specifier = ">=6.5.2" },
     { name = "treescope", specifier = ">=0.1.10" },
 ]
 tests = [

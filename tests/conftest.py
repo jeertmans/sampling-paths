@@ -1,10 +1,11 @@
+import chex
 import jax
 import jax.numpy as jnp
 import optax
 import pytest
 from differt.geometry import TriangleMesh
 from differt.scene import TriangleScene
-from jaxtyping import PRNGKeyArray
+from jaxtyping import Array, Int, PRNGKeyArray
 
 from sampling_paths.agent import Agent
 from sampling_paths.model import Model
@@ -159,10 +160,73 @@ def scene(key: PRNGKeyArray) -> TriangleScene:
 
     # We add inactive objects to the scene
     # to make sure the agent effectively ignores them
-    mesh += triangle.sample(0.0, by_masking=True, key=key)
+    mesh += mesh.sample(0, by_masking=True, key=key)
+
+    assert mesh.mask is not None
+    assert mesh.num_triangles == 8
 
     return TriangleScene(
         transmitters=jnp.array([0, 0, +0.5]),
         receivers=jnp.array([0, 0, -0.5]),
         mesh=mesh,
     )
+
+
+@pytest.fixture
+def masked_actions(
+    scene: TriangleScene,
+) -> dict[int, Int[Array, " num_masked_actions"]]:
+    # List unreachable objects in the scene after a first reflection on each object
+    tx = scene.transmitters.reshape(3)
+    # [num_objects 3 3]
+    xyz = scene.mesh.triangle_vertices
+    # [num_objects 3]
+    normals = scene.mesh.normals
+
+    masked_objects = {}
+    for i in range(xyz.shape[0]):
+        if scene.mesh.mask is not None and not scene.mesh.mask[i]:
+            # Inactive object, pass
+            masked_objects[i] = jnp.array([], dtype=int)
+            continue
+
+        # [3]
+        obj_normal = normals[i]
+        # [3 3]
+        obj_vertices = xyz[i]
+        # [3 3]
+        i_vecs = tx - obj_vertices
+        # [num_objects 3 3 3]
+        r_vecs = obj_vertices[None, None, :, :] - xyz[:, :, None, :]
+        # [3]
+        i_dot = jnp.sum(i_vecs * obj_normal, axis=-1)
+        # [num_objects 3 3]
+        r_dot = jnp.sum(r_vecs * obj_normal, axis=-1)
+        got_dot_sign = jnp.sign(r_dot)
+        expected_dot_sign = jnp.sign(i_dot)
+        reachable = jnp.any(
+            got_dot_sign[..., None] != expected_dot_sign, axis=(1, 2, 3)
+        )
+        if scene.mesh.mask is not None:
+            reachable = jnp.where(~scene.mesh.mask, True, reachable)
+        masked_objects[i] = jnp.argwhere(~reachable).flatten()
+
+    chex.assert_trees_all_equal(
+        masked_objects,
+        {
+            0: jnp.array(
+                [], dtype=int
+            ),  # All objects are reachable after reflecting on object 0
+            1: jnp.array([0]),  # Object 0 is unreachable after reflecting on object 1
+            2: jnp.array([3]),  # Object 3 is unreachable after reflecting on object 2
+            3: jnp.array(
+                [], dtype=int
+            ),  # All objects are reachable after reflecting on object 3
+            4: jnp.array([], dtype=int),  # Inactive object
+            5: jnp.array([], dtype=int),  # Inactive object
+            6: jnp.array([], dtype=int),  # Inactive object
+            7: jnp.array([], dtype=int),  # Inactive object
+        },
+    )
+
+    return masked_objects

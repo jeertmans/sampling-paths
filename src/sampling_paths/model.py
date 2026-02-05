@@ -72,8 +72,8 @@ class Model(eqx.Module):
         num_vertices_per_object: int = 3,
         dropout_rate: float = 0.0,
         epsilon: Float[ArrayLike, ""] = 0.5,
-        action_masking: bool = False,
-        distance_based_weighting: bool = False,
+        action_masking: bool = True,
+        distance_based_weighting: bool = True,
         inference: bool = False,
         reward_fn: RewardFn = default_reward_fn,
         key: PRNGKeyArray,
@@ -199,14 +199,14 @@ class Model(eqx.Module):
         """
         inference = self.inference if inference is None else inference
 
-        xyz, tx, rx = unpack_scene(scene)
+        pre_xyz, tx, rx = unpack_scene(scene)
 
         if replay_symmetric and replay is not None:
             tx, rx = rx, tx
             replay = replay[::-1]
 
         # [num_objects 3 3]
-        xyz = geometric_transformation(xyz, tx, rx)
+        xyz = geometric_transformation(pre_xyz, tx, rx)
         num_objects = xyz.shape[0]
         # [num_objects num_embeddings]
         objects_embeds = self.objects_encoder(xyz, active_objects=scene.mesh.mask)
@@ -269,22 +269,35 @@ class Model(eqx.Module):
                 # Only implemented for second interaction
                 # where second last object is TX
                 is_second_interaction = i == 1
-                previous_object_normal = normalize(
-                    jnp.cross(xyz[previous_object, 0, :], xyz[previous_object, 1, :])
-                )[0]
-
-                previous_object_vertices = xyz[previous_object, :, :]
-                in_vector = previous_object_vertices[
-                    0, :
-                ]  # From TX at (0,0,0) to previous object
+                # [3 3]
+                previous_object_vertices = xyz[previous_object]
+                # [3]
+                previous_object_normal = jnp.cross(
+                    *jnp.diff(previous_object_vertices, axis=0)
+                )
+                # [num_objects 3 3]
+                next_objects_vertices = xyz
+                # [3 3]
+                i_vectors = (
+                    jnp.zeros(3) - previous_object_vertices
+                )  # From TX at (0,0,0) to previous object
                 # [num_objects 3 3 3]
-                out_vectors = (
-                    previous_object_vertices[None, :, None, :] - xyz[:, None, :, :]
-                )  # From all objects to previous object
-                expected_dot_sign = jnp.sign(jnp.dot(in_vector, previous_object_normal))
-                got_dot_sign = jnp.sign(jnp.dot(out_vectors, previous_object_normal))
-                # The object is visible if at least one of its vertices is on the expected side
-                visible = jnp.any(got_dot_sign == expected_dot_sign, axis=(1, 2))
+                r_vectors = (
+                    previous_object_vertices[None, None, :, :]
+                    - next_objects_vertices[:, :, None, :]
+                )  # From each next object to previous object
+                # [3]
+                expected_dot_sign = jnp.sign(
+                    jnp.sum(i_vectors * previous_object_normal, axis=-1)
+                )
+                # [num_objects 3 3]
+                got_dot_sign = jnp.sign(
+                    jnp.sum(r_vectors * previous_object_normal, axis=-1)
+                )
+                # The object is visible if at least one of its vertices is on the same reflection side
+                visible = jnp.any(
+                    got_dot_sign[..., None] != expected_dot_sign, axis=(1, 2, 3)
+                )
 
                 policy = jnp.where(
                     is_second_interaction,
