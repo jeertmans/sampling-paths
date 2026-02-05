@@ -274,7 +274,7 @@ class Flows(eqx.Module):
             objects_embeds,
             scene_embeds,
             state_embeds,
-        )
+        ).clip(min=1e-20)
         flows = self.dropout(flows, inference=inference, key=key)
         if active_objects is not None:
             flows = jnp.where(active_objects, flows, 0.0)

@@ -63,13 +63,13 @@ def main() -> None:
     parser.add_argument(
         "--epsilon",
         type=float,
-        default=0.1,
+        default=0.5,
         help="The epsilon value for the epsilon-greedy policy.",
     )
     parser.add_argument(
         "--delta-epsilon",
         type=float,
-        default=0.0,
+        default=1e-6,
         help="The delta epsilon value for the epsilon-greedy policy.",
     )
     parser.add_argument(
@@ -93,7 +93,7 @@ def main() -> None:
     parser.add_argument(
         "--num-episodes",
         type=int,
-        default=300_000,
+        default=500_000,
         help="The number of episodes.",
     )
     parser.add_argument(

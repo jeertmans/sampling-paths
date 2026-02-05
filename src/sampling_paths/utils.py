@@ -191,7 +191,12 @@ def basis_for_canonical_frame(
     basis = jnp.stack((u, v, w))
     # Handle degenerate cases where tx and rx are aligned with the z-axis
     # by applying reflection in the xy-plane
-    basis = jnp.where((s1 == 0.0) | (s2 == 0.0), jnp.eye(3).at[2, 2].set(-1), basis)
+    basis = jnp.where(
+        (s1 == 0.0) | (s2 == 0.0), jnp.eye(3).at[2, 2].set(jnp.sign(w[2])), basis
+    )
+    # Handle degenerate case where tx and rx are at the same position by returning identity basis and scale of 1
+    basis = jnp.where(scale == 0.0, jnp.eye(3), basis)
+    scale = jnp.where(scale == 0.0, 1.0, scale)
     return basis, scale
 
 

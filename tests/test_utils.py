@@ -40,6 +40,33 @@ def test_geometric_transformation_tx_rx_projection(
             )
 
 
+def test_geometric_transformation_tx_rx_projection_degenerate(
+    key: PRNGKeyArray,
+    subtests: SubTests,
+) -> None:
+    for i, sub_key in enumerate(jr.split(key, 10)):
+        with subtests.test(i=i):
+            tx, rx = jr.normal(sub_key, (2, 3))
+            rx = rx.at[
+                0:2
+            ].set(
+                tx[0:2]
+            )  # set x and y coordinates of RX equal to those of TX to create degenerate case
+            xyz = jnp.stack([tx, rx], axis=0)
+
+            xyz_transformed = geometric_transformation(xyz, tx, rx)
+            chex.assert_trees_all_close(
+                xyz_transformed[0, :],
+                jnp.array([0.0, 0.0, 0.0]),
+                atol=1e-7,
+            )
+            chex.assert_trees_all_close(
+                xyz_transformed[1, :],
+                jnp.array([0.0, 0.0, 1.0]),
+                atol=1e-7,
+            )
+
+
 @pytest.mark.parametrize("degenerate", [False, True])
 def test_geometric_transformation_invariance_properties(
     degenerate: bool,

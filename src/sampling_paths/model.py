@@ -5,13 +5,13 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import jax.random as jr
-from differt.geometry import normalize
 from differt.scene import (
     TriangleScene,
 )
 from jaxtyping import (
     Array,
     ArrayLike,
+    Bool,
     Float,
     Int,
     PRNGKeyArray,
@@ -216,59 +216,20 @@ class Model(eqx.Module):
             active_objects=scene.mesh.mask,
         )
 
-        def scan_fn(
-            carry: tuple[
-                Int[Array, " order"],
-                Float[Array, ""],
-                Float[Array, "num_objects"],
-                Int[Array, ""],
-            ],
-            x: tuple[Int[Array, ""], PRNGKeyArray],
-        ) -> tuple[
-            tuple[
-                Int[Array, " order"],
-                Float[Array, ""],
-                Float[Array, "num_objects"],
-                Int[Array, ""],
-            ],
-            Float[Array, ""],
-        ]:
-            partial_path_candidate, loss_value, edge_flows, previous_object = carry
-            i, key = x
-
-            next_object_key, next_edge_flows_key = jr.split(key)
-
-            # Sample next object
-            flow_policy = edge_flows
-            if (
-                not inference
-            ):  # During training, we use uniform policy with probability epsilon
-                epsilon_greedy_key, next_object_key = jr.split(next_object_key)
-                uniform_policy = (
-                    jnp.where(scene.mesh.mask, 1.0, 0.0)
-                    if scene.mesh.mask is not None
-                    else jnp.ones_like(flow_policy)
-                )
-                uniform_policy = uniform_policy.at[previous_object].set(
-                    0.0,
-                    wrap_negative_indices=False,
-                )
-                choose_uniform_policy = jr.bernoulli(
-                    epsilon_greedy_key,
-                    self.epsilon,
-                ) | (edge_flows.sum() == 0.0)
-                policy = jnp.where(
-                    choose_uniform_policy,
-                    uniform_policy,
-                    flow_policy,
-                )
-            else:
-                policy = flow_policy
-
+        def compute_flows_mask(
+            previous_object: Int[Array, ""],
+            interaction_index: Int[Array, ""],
+        ) -> Bool[Array, " num_objects"]:
+            mask = (
+                scene.mesh.mask
+                if scene.mesh.mask is not None
+                else jnp.ones(num_objects, dtype=bool)
+            )
+            mask = mask.at[previous_object].set(False, wrap_negative_indices=False)
             if self.action_masking:
                 # Only implemented for second interaction
                 # where second last object is TX
-                is_second_interaction = i == 1
+                is_second_interaction = interaction_index == 1
                 # [3 3]
                 previous_object_vertices = xyz[previous_object]
                 # [3]
@@ -299,46 +260,109 @@ class Model(eqx.Module):
                     got_dot_sign[..., None] != expected_dot_sign, axis=(1, 2, 3)
                 )
 
-                policy = jnp.where(
+                mask = jnp.where(
                     is_second_interaction,
-                    jnp.where(visible, policy, 0.0),
-                    policy,
+                    jnp.where(visible, mask, False),
+                    mask,
                 )
+            return mask
 
-            if self.distance_based_weighting:
-                centers = xyz.mean(axis=1)
-                previous_object_center = jnp.where(
-                    previous_object != -1,
-                    centers[previous_object],
-                    jnp.zeros(3),  # TX is at (0,0,0) after geometric transformation
+        def compute_flows_weight(
+            mask: Bool[Array, " num_objects"],
+            previous_object: Int[Array, ""],
+            interaction_index: Int[Array, ""],
+        ) -> Float[Array, " num_objects"]:
+            if not self.distance_based_weighting:
+                return jnp.ones(num_objects, dtype=float)
+            centers = xyz.mean(axis=1)
+            previous_object_center = jnp.where(
+                previous_object != -1,
+                centers[previous_object],
+                jnp.zeros(3),  # TX is at (0,0,0) after geometric transformation
+            )
+            d = jnp.linalg.norm(centers - previous_object_center, axis=-1)
+            d += jnp.where(
+                interaction_index == self.order - 1,
+                jnp.linalg.norm(
+                    centers
+                    - jnp.array(
+                        [0.0, 0.0, 1.0]
+                    ),  # RX is at (0,0,1) after geometric transformation
+                    axis=-1,
+                ),
+                0.0,
+            )
+            zero_d = d == 0.0
+            d = jnp.where(zero_d, 1.0, d)
+            w = 1 / (d * d)
+            w = jnp.where(mask & (~zero_d), w, 0.0)
+            w = jnp.where(w.sum() == 0.0, 1.0, w)
+            return w / w.sum()
+
+        def apply_mask_and_weight(
+            flows: Float[Array, " num_objects"],
+            previous_object: Int[Array, ""],
+            interaction_index: Int[Array, ""],
+        ) -> Float[Array, " num_objects"]:
+            flows_mask = compute_flows_mask(
+                previous_object,
+                interaction_index,
+            )
+            flows_weight = compute_flows_weight(
+                flows_mask,
+                previous_object,
+                interaction_index,
+            )
+            return jnp.where(flows_mask, flows, 0.0) * flows_weight
+
+        def scan_fn(
+            carry: tuple[
+                Int[Array, " order"],
+                Float[Array, ""],
+                Float[Array, "num_objects"],
+            ],
+            x: tuple[Int[Array, ""], PRNGKeyArray],
+        ) -> tuple[
+            tuple[
+                Int[Array, " order"],
+                Float[Array, ""],
+                Float[Array, "num_objects"],
+            ],
+            Float[Array, ""],
+        ]:
+            partial_path_candidate, loss_value, edge_flows = carry
+            interaction_index, key = x
+
+            next_object_key, next_edge_flows_key = jr.split(key)
+
+            # Sample next object
+            flow_policy = edge_flows
+            if (
+                not inference
+            ):  # During training, we use uniform policy with probability epsilon
+                epsilon_greedy_key, next_object_key = jr.split(next_object_key)
+                uniform_policy = jnp.where(edge_flows > 0, 1.0, 0.0)
+                choose_uniform_policy = jr.bernoulli(
+                    epsilon_greedy_key,
+                    self.epsilon,
                 )
-                d = jnp.linalg.norm(centers - previous_object_center, axis=-1)
-                d += jnp.where(
-                    i == self.order - 1,
-                    jnp.linalg.norm(
-                        centers
-                        - jnp.array(
-                            [0.0, 0.0, 1.0]
-                        ),  # RX is at (0,0,1) after geometric transformation
-                        axis=-1,
-                    ),
-                    0.0,
+                policy = jnp.where(
+                    choose_uniform_policy,
+                    uniform_policy,
+                    flow_policy,
                 )
-                zero_d = d == 0.0
-                d = jnp.where(zero_d, 1.0, d)
-                w = 1 / (d * d)
-                w = jnp.where((policy > 0) & (~zero_d), w, 0.0)
-                w = jnp.where(w.sum() == 0.0, 1.0, w)
-                w = w / w.sum()
-                policy *= w
+            else:
+                policy = flow_policy
 
             if replay is not None:
-                next_object = replay[i]
+                next_object = replay[interaction_index]
             else:
                 next_object = jr.choice(next_object_key, num_objects, p=policy)
 
             # Update state variables
-            partial_path_candidate = partial_path_candidate.at[i].set(next_object)
+            partial_path_candidate = partial_path_candidate.at[interaction_index].set(
+                next_object
+            )
             state_embeds = self.state_encoder(
                 partial_path_candidate,
                 objects_embeds,
@@ -348,14 +372,16 @@ class Model(eqx.Module):
             # Compute loss (flow mismatch)
             parent_flow = edge_flows[next_object]
 
+            is_last_interaction = interaction_index == self.order - 1
+
             reward = jnp.where(
-                i == self.order - 1,
+                is_last_interaction,
                 self.reward_fn(partial_path_candidate, scene),
                 0.0,
             )
 
             edge_flows = jnp.where(
-                i == self.order - 1,
+                is_last_interaction,
                 jnp.zeros_like(edge_flows),
                 self.flows(
                     objects_embeds,
@@ -364,9 +390,11 @@ class Model(eqx.Module):
                     active_objects=scene.mesh.mask,
                     inference=inference,
                     key=next_edge_flows_key,
-                )
-                .at[next_object]
-                .set(0.0),
+                ),
+            )
+
+            edge_flows = apply_mask_and_weight(
+                edge_flows, next_object, interaction_index + 1
             )
 
             loss_value += (parent_flow - edge_flows.sum() - reward) ** 2
@@ -375,7 +403,6 @@ class Model(eqx.Module):
                 partial_path_candidate,
                 loss_value,
                 edge_flows,
-                next_object,
             ), reward
 
         init_edge_flows_key, scan_key = jr.split(key)
@@ -392,13 +419,18 @@ class Model(eqx.Module):
             key=init_edge_flows_key,
         )
 
-        (path_candidate, loss_value, _, _), rewards = jax.lax.scan(
+        init_edge_flows = apply_mask_and_weight(
+            init_edge_flows,
+            jnp.array(-1),  # No previous object
+            jnp.array(0),  # First interaction
+        )
+
+        (path_candidate, loss_value, _), rewards = jax.lax.scan(
             scan_fn,
             (
                 init_path_candidate,
                 init_loss_value,
                 init_edge_flows,
-                jnp.array(-1),
             ),
             (jnp.arange(self.order), jr.split(scan_key, self.order)),
         )

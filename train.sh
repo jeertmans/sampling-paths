@@ -5,7 +5,7 @@ do
 for distance_based_weighting in "--distance-based-weighting" "--no-distance-based-weighting"
 do
 echo $order $action_masking $distance_based_weighting
-uv run train-path-sampler $action_masking $distance_based_weighting --order $order || true
+uv run train-path-sampler $action_masking $distance_based_weighting --order $order --num-episodes 500000 || true
 done
 done
 done

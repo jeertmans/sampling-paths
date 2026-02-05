@@ -49,7 +49,7 @@ def dropout_rate() -> float:
 
 @pytest.fixture
 def epsilon() -> float:
-    return 0.1
+    return 0.5
 
 
 @pytest.fixture
@@ -69,6 +69,8 @@ def model(
         depth=depth,
         dropout_rate=dropout_rate,
         epsilon=epsilon,
+        action_masking=False,
+        distance_based_weighting=False,
         key=key,
     )
 
@@ -105,12 +107,12 @@ def optim() -> optax.GradientTransformationExtraArgs:
 
 @pytest.fixture
 def delta_epsilon() -> float:
-    return 0.0
+    return 1e-4
 
 
 @pytest.fixture
 def min_epsilon(epsilon: float) -> float:
-    return epsilon
+    return min(0.1, epsilon)
 
 
 @pytest.fixture
