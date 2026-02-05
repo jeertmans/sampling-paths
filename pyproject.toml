@@ -15,7 +15,7 @@ dev = [
   "ty>=0.0.14",
 ]
 notebook = [
-    "plotly>=6.5.2",
+  "plotly>=6.5.2",
 ]
 notebooks = [
   "ipywidgets>=8.1.8",
@@ -34,7 +34,7 @@ authors = [
   {name = "Jérome Eertmans", email = "jeertmans@icloud.com"},
 ]
 dependencies = [
-  "differt>=0.6.2",
+  "differt==0.7.0",
   "equinox>=0.13.4",
   "jax>=0.9.0",
   "jaxtyping>=0.3.6",
@@ -72,7 +72,7 @@ docstring-code-format = true
 
 [tool.ruff.lint]
 extend-ignore = ["D203", "D212", "F722"]
-extend-select = ["D"]
+extend-select = ["D", "I"]
 isort = {known-first-party = ["sampling_paths", "tests"]}
 
 [tool.ruff.lint.extend-per-file-ignores]
@@ -80,6 +80,3 @@ isort = {known-first-party = ["sampling_paths", "tests"]}
 "src/sampling_paths/*.py" = ["D100", "F401"]
 "src/sampling_paths/__init__.py" = ["D104"]
 "src/sampling_paths/__main__.py" = ["D103"]
-
-[tool.uv.sources]
-differt = {path = "../DiffeRT/DiffeRT/differt"}  # TODO: remove this

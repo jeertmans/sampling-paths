@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal, overload, Any, BinaryIO, Protocol, runtime_checkable
+from typing import Any, BinaryIO, Literal, Protocol, overload, runtime_checkable
 
 import equinox as eqx
 import jax

@@ -552,7 +552,8 @@ wheels = [
 
 [[package]]
 name = "differt"
-source = { directory = "../DiffeRT/DiffeRT/differt" }
+version = "0.7.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "chex" },
     { name = "differt-core" },
@@ -565,47 +566,67 @@ dependencies = [
     { name = "requests" },
     { name = "tqdm" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "chex", specifier = ">=0.1.86" },
-    { name = "differt-core", editable = "../DiffeRT/DiffeRT/differt-core" },
-    { name = "equinox", specifier = ">=0.13.4" },
-    { name = "filelock", specifier = ">=3.15.4" },
-    { name = "fpt-jax", specifier = "==0.1.0" },
-    { name = "ipykernel", marker = "extra == 'all'", specifier = "<7" },
-    { name = "ipykernel", marker = "extra == 'jupyter'", specifier = "<7" },
-    { name = "ipympl", marker = "extra == 'all'", specifier = ">=0.9.4" },
-    { name = "ipympl", marker = "extra == 'jupyter'", specifier = ">=0.9.4" },
-    { name = "jax", specifier = ">=0.8.1" },
-    { name = "jaxtyping", specifier = ">=0.3.6" },
-    { name = "jupyter-rfb", marker = "extra == 'all'", specifier = ">=0.4.2" },
-    { name = "jupyter-rfb", marker = "extra == 'jupyter'", specifier = ">=0.4.2" },
-    { name = "matplotlib", marker = "extra == 'all'", specifier = ">=3.8.1" },
-    { name = "matplotlib", marker = "extra == 'matplotlib'", specifier = ">=3.8.1" },
-    { name = "notebook", marker = "extra == 'all'", specifier = ">5" },
-    { name = "notebook", marker = "extra == 'jupyter'", specifier = ">5" },
-    { name = "numpy", specifier = ">=1.26.1" },
-    { name = "plotly", marker = "extra == 'all'", specifier = ">=5.18.0" },
-    { name = "plotly", marker = "extra == 'plotly'", specifier = ">=5.18.0" },
-    { name = "pyqt6", marker = "extra == 'all'", specifier = ">=6.6.1" },
-    { name = "pyqt6", marker = "extra == 'vispy-backend'", specifier = ">=6.6.1" },
-    { name = "requests", specifier = ">=2.32.0" },
-    { name = "tqdm", specifier = ">=4.66.2" },
-    { name = "vispy", marker = "extra == 'all'", specifier = ">=0.14.1" },
-    { name = "vispy", marker = "extra == 'vispy'", specifier = ">=0.14.1" },
+sdist = { url = "https://files.pythonhosted.org/packages/19/80/b132ed7f860b410e16daa9cfc907120c4c6f1d95b8e7301353b524ece54f/differt-0.7.0.tar.gz", hash = "sha256:a58cb637af1a7f3b8c054be81f7b16f70322282bd9bbececce4178c50928df33", size = 85757, upload-time = "2026-02-04T17:37:07.329Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0c/2c/01faf28442417287c0af2850d00e1eceb726b5f6ee42fa87d688fa4728a2/differt-0.7.0-py3-none-any.whl", hash = "sha256:4b1cd2d459ad5022f719ecc168dfcedc8a96772d00b5d8f88a2b715e1915fc26", size = 99033, upload-time = "2026-02-04T17:37:06.015Z" },
 ]
-provides-extras = ["all", "jupyter", "matplotlib", "plotly", "vispy", "vispy-backend"]
 
 [[package]]
 name = "differt-core"
-source = { editable = "../DiffeRT/DiffeRT/differt-core" }
+version = "0.7.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
 ]
-
-[package.metadata]
-requires-dist = [{ name = "numpy", specifier = ">=1.20" }]
+sdist = { url = "https://files.pythonhosted.org/packages/42/45/5eb42849f94cf29693e74bc0f7199afe3bc696d7df25aefa30c11d1f7e9e/differt_core-0.7.0.tar.gz", hash = "sha256:feff37d8a591dd10294d562bfc1317df734d15baadc53d9a8f86b8f6726ed9c6", size = 55447, upload-time = "2026-02-05T08:11:15.578Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ed/7c/e75119a4b90517a413abbb384024a405d4f3e57137386a842812d9411e8e/differt_core-0.7.0-cp311-abi3-macosx_10_12_x86_64.whl", hash = "sha256:4ec357b35ae2b738c64aa027c500f11db4e3a4c2d189b790450421e29a3835f4", size = 509546, upload-time = "2026-02-05T08:10:37.127Z" },
+    { url = "https://files.pythonhosted.org/packages/16/bb/0e11036b7fff76598e32822b3606e1a57c03cbaf6d48ac53278677a28dfd/differt_core-0.7.0-cp311-abi3-macosx_11_0_arm64.whl", hash = "sha256:a40c801e9b1dcdcb87efac71d647993ec641b8ccc0ebe011a310ebd1e8a1234e", size = 483327, upload-time = "2026-02-05T08:10:32.692Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/b5/5d80b7ce79502f95f5896a3e523c5dc3ab0dcfc9236c62e926f6583f7299/differt_core-0.7.0-cp311-abi3-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:e0a6584be506cd4e7ce751c353c077a6ddce7e2ae3156ba3461087d0cb36ad14", size = 567004, upload-time = "2026-02-05T08:10:24.555Z" },
+    { url = "https://files.pythonhosted.org/packages/d8/13/daedf0e5e347b9c4efa2213a6a136216e10f2d5ff74aa9ab85cbc1f09f64/differt_core-0.7.0-cp311-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4110aaac42b35b65abf15ec4be11f85b78bfc3d3ae34543436406e12d732519f", size = 504249, upload-time = "2026-02-05T08:09:56.716Z" },
+    { url = "https://files.pythonhosted.org/packages/67/47/12ea690a0e671b947631823f37d768aa6167c317cd30b22c61571062a01d/differt_core-0.7.0-cp311-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:41b9ca3d5ef465b9697bcbf9765e20853665aab5290ec9c0c98ad53630c9cb1e", size = 526440, upload-time = "2026-02-05T08:10:04.04Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/a8/5a802414e1b660447f2ded2635184b3d54794cc787d50f4d131bc93bd793/differt_core-0.7.0-cp311-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:fd496cf7719a7b754d593f1c067f32c2396ab0b0fe87d07dd60c1565695e5127", size = 590428, upload-time = "2026-02-05T08:10:11.154Z" },
+    { url = "https://files.pythonhosted.org/packages/49/47/beeffeeeef32cb1a836f66993909a022c7da0cc2074864115dcb2397fd13/differt_core-0.7.0-cp311-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:d6c184125b5739db499c39ff5546b8659339df112851c0fd54f83cff7e3a119f", size = 619926, upload-time = "2026-02-05T08:10:17.928Z" },
+    { url = "https://files.pythonhosted.org/packages/a1/75/85c2247033921e1d05bca51913f2c74770b51806b0b5537e76b0746d0d40/differt_core-0.7.0-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c042e020c5b63fb0c6348fd20c69bcff734c0da1dbe0e1a945b24652aa15944c", size = 535716, upload-time = "2026-02-05T08:10:28.277Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/8e/0a1082951b89e2458382644ff3995c941a685ce63d7bb5b9015de4dd54a9/differt_core-0.7.0-cp311-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:e0e377cd1c0f7b30252c349dc441dae1130bd6adb1bfb60468e485ad8c077a0a", size = 682398, upload-time = "2026-02-05T08:10:40.602Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/79/2d20ca5b0e2d01fbee8fe45e2f2a2444caf071a9504619074cccba1a9698/differt_core-0.7.0-cp311-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:66fc8510b394c32480e0ac7915c4317d6e893c26241fa329101881382edc9153", size = 797907, upload-time = "2026-02-05T08:10:49.468Z" },
+    { url = "https://files.pythonhosted.org/packages/63/ce/eb5636e1a7b07485b7bec5219e7492b52bb6e19df458898f5371261cb3dc/differt_core-0.7.0-cp311-abi3-musllinux_1_2_i686.whl", hash = "sha256:ecb408820fe381146e72f32f1a192977c2950cfa6f970517d51a06c308abcabd", size = 777049, upload-time = "2026-02-05T08:10:58.069Z" },
+    { url = "https://files.pythonhosted.org/packages/e7/fb/144a6bbbb930f9e325f3047c217492da13bce7710bfc4b413b87514cb6c8/differt_core-0.7.0-cp311-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:8d9278dde5f12a2620292d925dd992bf3553d2fc6b1ba44fd3794d52cb2d83ef", size = 748500, upload-time = "2026-02-05T08:11:07.679Z" },
+    { url = "https://files.pythonhosted.org/packages/31/eb/070cedd2b53913187ef044c370123bf7eefa35323d8b361b9f1be4148e59/differt_core-0.7.0-cp311-abi3-win32.whl", hash = "sha256:c691ee6bc46b38c41ac6d756f315a83e9a8f500ce6fcfc67faff1e37e3ba9ddb", size = 434483, upload-time = "2026-02-05T08:11:20.241Z" },
+    { url = "https://files.pythonhosted.org/packages/14/75/b5e5485249bce6efde7f1c931d3d7f195e4c1c876fcb02eefc2a5145b9eb/differt_core-0.7.0-cp311-abi3-win_amd64.whl", hash = "sha256:a13229d83998f480e900044e51f22d455ea4af2d7b350fd5d5f8544fac615c28", size = 465789, upload-time = "2026-02-05T08:11:16.382Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/ea/fe049edd2abbc0f03dc676378fc729bbce0d6a3df137915730f30e41b2e4/differt_core-0.7.0-cp313-cp313t-macosx_10_12_x86_64.whl", hash = "sha256:b014708a9141f5bc0a6c7802ae84d394d585a85658382e403d55dc766f37fb0d", size = 506507, upload-time = "2026-02-05T08:10:38.372Z" },
+    { url = "https://files.pythonhosted.org/packages/80/b4/7b08cdf63f985bdf73b2bacfd1dc66ea5d2cfdafc882a69589d8cd2a2299/differt_core-0.7.0-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:26bd24e9dfbb7956ddbd9cc72a5a42d08b805ca75b646a16665fe4aafe54404b", size = 480742, upload-time = "2026-02-05T08:10:34.205Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/69/a535e79d37db44d02532a92ee7a457397f9353bca12ad7f29b09274a27ae/differt_core-0.7.0-cp313-cp313t-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:c91cce27e8b6b32772e3269b4828a195b2ada75bf64f003b81b30cc72aa40acb", size = 562379, upload-time = "2026-02-05T08:10:26.098Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/1b/095329fb5f505090797e348a831e420f81f463386ea8c9bb9524704e6e08/differt_core-0.7.0-cp313-cp313t-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3c0762ea568de153dffab3d9f6153678ad3833c3fbd0857163fe7800f60c9b65", size = 501598, upload-time = "2026-02-05T08:09:58.363Z" },
+    { url = "https://files.pythonhosted.org/packages/df/14/434414415332e14d5115f71fa29808d6bb8ba2d7184d282bae6504bf1115/differt_core-0.7.0-cp313-cp313t-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:bebee9eb66abea8ff9d446885a9c2db6c21300c49827f228f6d5558beda95439", size = 521617, upload-time = "2026-02-05T08:10:05.1Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/76/1600b90304edf50a0ad30eae1d7454bf8ff3da84d996f5ea6ab3afc8c61d/differt_core-0.7.0-cp313-cp313t-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:4bf00dbba0672145429b5fb233db83865dba95eb5146d663bfb8aa08d2c7fbdb", size = 586317, upload-time = "2026-02-05T08:10:12.302Z" },
+    { url = "https://files.pythonhosted.org/packages/da/09/c95b8aa924d9ccb390acf9070867d95211c7b15d9a13010677f46850d849/differt_core-0.7.0-cp313-cp313t-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:e4014a7a68c6d25406206365a5ecef110c3069b5985e1f2b8f133ade9857baa4", size = 617795, upload-time = "2026-02-05T08:10:19.022Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/9c/c45f5c47f42a6b33aed501e24c336dc77ee6dc83c44854b91f90cf98d11b/differt_core-0.7.0-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cb40f033f6f1ec561298557e5cf0624d1f5d393f3e549a10b37a8332ae0454fd", size = 532074, upload-time = "2026-02-05T08:10:29.416Z" },
+    { url = "https://files.pythonhosted.org/packages/bb/7e/338fd3bff01354d6a095e65fe4e7405891aba8901b1dfc862e8fd454ac10/differt_core-0.7.0-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:f7a49af4e6fefa586bf478691464041f53adae4ecd13008cea0c573d6387d1a2", size = 679747, upload-time = "2026-02-05T08:10:42.69Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/7d/d7ffb36494c52431cc7980ad7886e360f7772ce0dcf1cb9c34ece521c886/differt_core-0.7.0-cp313-cp313t-musllinux_1_2_armv7l.whl", hash = "sha256:f01e9dc607007dfcc3e7f24950d82a53b90b4203f807cc2573435355a8c1612b", size = 793787, upload-time = "2026-02-05T08:10:50.563Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/e2/1c905e4275e17cff35ecc7b562061e3c499a049dc88670753d1a97a48279/differt_core-0.7.0-cp313-cp313t-musllinux_1_2_i686.whl", hash = "sha256:3fa1604bc128c7fb28d3ad20ede221ea16b409fd927fb253eb796867495b6f30", size = 772475, upload-time = "2026-02-05T08:10:59.17Z" },
+    { url = "https://files.pythonhosted.org/packages/64/7d/adf1acd8e255b1e1238c744e4606911e3ade3ef5e64f8a07d8cb6b136ca4/differt_core-0.7.0-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:9d8b973e19eea1a55bacb2ae2c639dd029fa10d476d0c4e3876d8b5c183da137", size = 745298, upload-time = "2026-02-05T08:11:08.981Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/4a/5543a517ac078e468b6e47f0bdf760953cb66e67cd7e798093ca16dfcd62/differt_core-0.7.0-cp313-cp313t-win32.whl", hash = "sha256:fb0b4b9b867d0058b448475842923435a8eed3a1a4e4e6bfbdc7e6427df2b8f6", size = 431306, upload-time = "2026-02-05T08:11:21.357Z" },
+    { url = "https://files.pythonhosted.org/packages/91/4a/4fc588e7b1c24a094cceda52bef1924fc8c04fc54d1df9a957f41001542c/differt_core-0.7.0-cp313-cp313t-win_amd64.whl", hash = "sha256:e3a98467d3fe0e05cf08a6df203c4867f13bfc1cf5552eeb6228985a3c98deaa", size = 464195, upload-time = "2026-02-05T08:11:17.52Z" },
+    { url = "https://files.pythonhosted.org/packages/a5/24/a0baded359d645c8eed82405e4706314bfdec2eafa5fa2114896aae2b7c1/differt_core-0.7.0-cp314-cp314t-macosx_10_12_x86_64.whl", hash = "sha256:5a8de44b97515f4951ed361b32bed6142daebe548bf96bb186081309c343bbaf", size = 507699, upload-time = "2026-02-05T08:10:39.513Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/db/9e1f594482dac079d0918d1c7bd41baf3c84c8bd48189a2456d658a8bc68/differt_core-0.7.0-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:a69077a3cd353e7ab2b611f481c0427b952fe3ae99c60de437f602fb5edc341e", size = 481734, upload-time = "2026-02-05T08:10:35.222Z" },
+    { url = "https://files.pythonhosted.org/packages/52/e8/a1480635c390e23405fd6ce8a006dd13e1e7317182fa517277bdd1a52ba3/differt_core-0.7.0-cp314-cp314t-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:d6e82f6e261b21451cd958f82c57c027d157ada3b9acf18a4eb5fc5df12b636f", size = 563258, upload-time = "2026-02-05T08:10:27.22Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/df/35d69cd7ff6d29a6e0a775e4ad3ed3901ccefaccdf5b18f238e22bfaf054/differt_core-0.7.0-cp314-cp314t-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9e2a55d9bdc9e457e5d5e74efc749d2ad108f395b88449e65e6a2c528d9e7d0e", size = 501975, upload-time = "2026-02-05T08:09:59.379Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/90/97f31f8d329b20ade6d230c4f92e0cff2b64c918990fb3ffa100130168ac/differt_core-0.7.0-cp314-cp314t-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:9909d17c16dce4cc1295d84243437f51238228d2277fe01565380b0e0055be18", size = 522969, upload-time = "2026-02-05T08:10:06.532Z" },
+    { url = "https://files.pythonhosted.org/packages/0b/4d/809c399f188708122e68b8869f99ae1a853eabaa6794d67f03d71230e206/differt_core-0.7.0-cp314-cp314t-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:1e9cded6dc1946066e6de2916779dfbf92764d0a3beb004ba130ee2937f1c7fd", size = 586678, upload-time = "2026-02-05T08:10:13.412Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/04/33fe0ecf4eb42a47dbf8991e6bfcca4a635ba33dd1c537e155c8b376fcb8/differt_core-0.7.0-cp314-cp314t-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:0b01a8bf02508d9aac4ea4752325c1c72fa35d16d6109906fcd67d2c261e2451", size = 617905, upload-time = "2026-02-05T08:10:20.064Z" },
+    { url = "https://files.pythonhosted.org/packages/a1/fe/647f49bced36cf118e9986c87e6e6f6240e4561b1bb3e9bf313c2a01f608/differt_core-0.7.0-cp314-cp314t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:95b2657ae68adf4da6b7313cc0440da7fbbe0e5dfdf84530a539566041addaa1", size = 532496, upload-time = "2026-02-05T08:10:31Z" },
+    { url = "https://files.pythonhosted.org/packages/60/54/4be9faeae3cddcc01d4080d4326ee43bc0b55011598d7c1e4054663633a5/differt_core-0.7.0-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:3c3ccc46eba2334c22d882d8f813310ee0b71a09ccc5e9cd83994c7d87dffb56", size = 680019, upload-time = "2026-02-05T08:10:43.944Z" },
+    { url = "https://files.pythonhosted.org/packages/78/49/319d133221a42bc7441124fa57838f891b3121e49ade1dc8f5989eb1b1b5/differt_core-0.7.0-cp314-cp314t-musllinux_1_2_armv7l.whl", hash = "sha256:859e6335034edc8e9c3625885ee18e6816603fec630132cecfcf874860745488", size = 794582, upload-time = "2026-02-05T08:10:51.728Z" },
+    { url = "https://files.pythonhosted.org/packages/a1/df/b6e10880c846d151ae760c404791e6af2acb33a1fc84b81fcd423d8b1144/differt_core-0.7.0-cp314-cp314t-musllinux_1_2_i686.whl", hash = "sha256:4198d06031c2a9a636513c1e0a338188a1b6c22b02805fe9fff23dfdde18cc17", size = 773500, upload-time = "2026-02-05T08:11:00.867Z" },
+    { url = "https://files.pythonhosted.org/packages/91/80/d5ba9bdecc3c39a4855b9118aee68a581ba98f91a6e4acabe9a27371ff5e/differt_core-0.7.0-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:00f23331091c4c265730d17400e6dcebfeffa8750197a55325e514e0ade7acdc", size = 745817, upload-time = "2026-02-05T08:11:10.181Z" },
+    { url = "https://files.pythonhosted.org/packages/40/ed/492087b9c488326b6568dfbc3f2211cdb723ba5d7207e5285ddad6e7912a/differt_core-0.7.0-cp314-cp314t-win32.whl", hash = "sha256:1b708bba27dc95d2012479d179a9fccaab610fb108064c3eac23d13b6975f159", size = 431700, upload-time = "2026-02-05T08:11:22.523Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/1d/dd747987cd475bd3c11b7153c991f5cb2ee8e5e015ca4ca7dd32de0bb1a5/differt_core-0.7.0-cp314-cp314t-win_amd64.whl", hash = "sha256:d66c73178d7b1e4fc8f2ee9d86ab37f63ad01569808d9f6bf804e9b0f69de64a", size = 464372, upload-time = "2026-02-05T08:11:19.128Z" },
+    { url = "https://files.pythonhosted.org/packages/95/ca/847236d2c5d06d179a9c0268eacffaab695cc0883598dad16148c335e0b3/differt_core-0.7.0-pp311-pypy311_pp73-musllinux_1_2_aarch64.whl", hash = "sha256:d3b0dea95a542c975fa3139e840d98a6e950e32e7ae2ad1315048ab31a2dca32", size = 681514, upload-time = "2026-02-05T08:10:46.683Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/ff/576f51cb6ddf8b538f6c438bf852a6732da4ab341b84a5617688a683de38/differt_core-0.7.0-pp311-pypy311_pp73-musllinux_1_2_armv7l.whl", hash = "sha256:c0082ef486628e607d42f4cc9159c6c49b77abc0bb8e455f0709eb5a548035c8", size = 796041, upload-time = "2026-02-05T08:10:54.38Z" },
+    { url = "https://files.pythonhosted.org/packages/79/f9/e1bd15671f48e03032c99c57c9f0370bde85a0492be6467cfe49e7b3df4c/differt_core-0.7.0-pp311-pypy311_pp73-musllinux_1_2_i686.whl", hash = "sha256:3569a55d0198be823e741e404b4c36f613c9dcb9c575c4e1c48448b8cfb236d5", size = 775943, upload-time = "2026-02-05T08:11:04.039Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/57/0fe669ae8980dc61e531b46fed77f2036bafbc1f6ec9b005291bccad9ff6/differt_core-0.7.0-pp311-pypy311_pp73-musllinux_1_2_x86_64.whl", hash = "sha256:6503041813ba2e95802b3b080ba571047fefe1375b374e2f90f18a533a8661f1", size = 747421, upload-time = "2026-02-05T08:11:13.146Z" },
+]
 
 [[package]]
 name = "distlib"
@@ -2747,7 +2768,7 @@ tests = [
 
 [package.metadata]
 requires-dist = [
-    { name = "differt", directory = "../DiffeRT/DiffeRT/differt" },
+    { name = "differt", specifier = "==0.7.0" },
     { name = "equinox", specifier = ">=0.13.4" },
     { name = "jax", specifier = ">=0.9.0" },
     { name = "jaxtyping", specifier = ">=0.3.6" },
