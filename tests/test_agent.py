@@ -26,7 +26,7 @@ class TestAgent:
         train_key, eval_key = jr.split(key)
 
         loss = jnp.inf
-        num_episodes = {1: 400, 2: 30_000, 3: 30_000}[agent.model.order]
+        num_episodes = {1: 400, 2: 18_000, 3: 22_000}[agent.model.order]
         target_accuracy = 0.90  # Reaching 100 % is very long
 
         if degenerate:

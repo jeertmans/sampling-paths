@@ -27,15 +27,14 @@ class RewardFn(Protocol):
     """Protocol for a function that rewards a path candidate."""
 
     def __call__(
-        self, path_candidate: Int[Array, " order"], scene: TriangleScene, **kwargs: Any
+        self, predicted_path_candidate: Int[Array, " order"], scene: TriangleScene, /
     ) -> Float[Array, ""]:
         """
         Compute the reward for a given path candidate in a scene.
 
         Args:
-            path_candidate: The path candidate to be rewarded.
+            predicted_path_candidate: The path candidate to be rewarded.
             scene: The scene in which the path candidate exists.
-            kwargs: Additional keyword arguments.
 
         Returns:
             The reward value for the given path candidate in the scene.
@@ -163,7 +162,7 @@ class Model(eqx.Module):
         *,
         replay: Int[Array, " order"] | None = ...,
         replay_symettric: bool = ...,
-        inference: bool | None = ...,
+        inference: bool = ...,
         key: PRNGKeyArray,
     ) -> (
         Int[Array, " order"]

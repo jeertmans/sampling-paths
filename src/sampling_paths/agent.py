@@ -32,13 +32,12 @@ else:
 class SceneFn(Protocol):
     """Protocol for a function that generates a TriangleScene from a random key."""
 
-    def __call__(self, key: PRNGKeyArray, **kwargs: Any) -> TriangleScene:
+    def __call__(self, key: PRNGKeyArray) -> TriangleScene:
         """
         Generate a TriangleScene from a PRNG key.
 
         Args:
             key: The random key to be used.
-            kwargs: Additional keyword arguments.
 
         Returns:
             A TriangleScene object.
