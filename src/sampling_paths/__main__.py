@@ -33,7 +33,7 @@ def main() -> None:
     parser.add_argument(
         "--num-embeddings",
         type=int,
-        default=64,
+        default=128,
         help="The size of the embeddings.",
     )
     parser.add_argument(
@@ -69,7 +69,7 @@ def main() -> None:
     parser.add_argument(
         "--delta-epsilon",
         type=float,
-        default=1e-6,
+        default=0.0,
         help="The delta epsilon value for the epsilon-greedy policy.",
     )
     parser.add_argument(
@@ -101,12 +101,6 @@ def main() -> None:
         type=int,
         default=100,
         help="How often to evaluate (and save) the metrics.",
-    )
-    parser.add_argument(
-        "--save",
-        default=True,
-        action=argparse.BooleanOptionalAction,
-        help="Whether to save the results.",
     )
     parser.add_argument(
         "--exploratory-policy",
@@ -180,6 +174,18 @@ def main() -> None:
         default="info",
         choices=["debug", "info", "warning", "error", "critical"],
         help="The verbosity level.",
+    )
+    parser.add_argument(
+        "--save",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Whether to save the results.",
+    )
+    parser.add_argument(
+        "--results-dir",
+        type=Path,
+        default=Path("."),
+        help="The directory to save the results in.",
     )
 
     args = parser.parse_args()
@@ -287,11 +293,15 @@ def main() -> None:
     if args.save:
         # Create results directory with timestamp
         timestamp = time.strftime("results_%Y%m%d-%H%M%S")
-        results_dir = Path(f"{timestamp}")
-        results_dir.mkdir(parents=True)
+        results_dir = args.results_dir / Path(f"{timestamp}")
+        results_dir.mkdir(parents=True, exist_ok=True)
 
         with Path(results_dir / "config.json").open("w", encoding="utf-8") as f:
-            json.dump(vars(args), f, indent=2)
+            config = vars(args)
+            config.pop(
+                "results_dir"
+            )  # Pathlib Paths are not JSON serializable, so we remove it from the config before saving
+            json.dump(config, f, indent=2)
 
         eqx.tree_serialise_leaves(results_dir / "model.eqx", agent.model)
         jnp.save(results_dir / "loss_values.npy", jnp.array(loss_values))

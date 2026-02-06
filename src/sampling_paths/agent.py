@@ -98,25 +98,19 @@ def replay_loss(
         The average loss value.
 
     """
-
     # N.B.: we don't use the rewards from the replay buffer:
     # while they should equal the ones obtained by the model,
     # we observe that sometime a false 'successful' reward is stored (??).
-    def replay_loss_on_one_experience(
-        scene_key: PRNGKeyArray,
-        path_candidate: Int[Array, " order"],
-    ) -> Float[Array, ""]:
-        _, loss_value, reward = model(
+    _, loss_values, rewards = jax.vmap(
+        lambda scene_key, path_candidate: model(  # type: ignore[no-matching-overload]
             scene_fn(key=scene_key),
             replay=path_candidate,
             replay_symmetric=replay_symmetric,
             inference=False,
             key=jr.key(0),
-        )
-        return loss_value * reward
-
-    loss_values = jax.vmap(replay_loss_on_one_experience)(scene_keys, path_candidates)
-    return loss_values.mean()
+        ),
+    )(scene_keys, path_candidates)
+    return (loss_values * rewards).mean()
 
 
 def combine_grads(
