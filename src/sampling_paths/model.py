@@ -70,7 +70,7 @@ class Model(eqx.Module):
         depth: int,
         num_vertices_per_object: int = 3,
         dropout_rate: float = 0.0,
-        epsilon: Float[ArrayLike, ""] = 0.5,
+        epsilon: Float[ArrayLike, ""] = 0.1,
         action_masking: bool = True,
         distance_based_weighting: bool = True,
         inference: bool = False,

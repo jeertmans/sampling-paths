@@ -170,7 +170,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--distance-based-weighting",
-        default=True,
+        default=False,
         action=argparse.BooleanOptionalAction,
         help="Whether to use distance-based weighting when computing the flows.",
     )

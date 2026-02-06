@@ -76,8 +76,6 @@ def batch_loss(
     return loss_values.mean(), (path_candidates, rewards)
 
 
-@jax.debug_nans(False)
-@jax.debug_infs(False)
 def replay_loss(
     model: Model,
     scene_keys: Key[Array, " batch_size"],
@@ -100,20 +98,25 @@ def replay_loss(
         The average loss value.
 
     """
+
     # N.B.: we don't use the rewards from the replay buffer:
     # while they should equal the ones obtained by the model,
     # we observe that sometime a false 'successful' reward is stored (??).
-
-    _, loss_values, rewards = jax.vmap(
-        lambda scene_key, path_candidate: model(
+    def replay_loss_on_one_experience(
+        scene_key: PRNGKeyArray,
+        path_candidate: Int[Array, " order"],
+    ) -> Float[Array, ""]:
+        _, loss_value, reward = model(
             scene_fn(key=scene_key),
             replay=path_candidate,
             replay_symmetric=replay_symmetric,
             inference=False,
             key=jr.key(0),
-        ),
-    )(scene_keys, path_candidates)
-    return jnp.sum(loss_values * rewards)
+        )
+        return loss_value * reward
+
+    loss_values = jax.vmap(replay_loss_on_one_experience)(scene_keys, path_candidates)
+    return loss_values.mean()
 
 
 def combine_grads(
