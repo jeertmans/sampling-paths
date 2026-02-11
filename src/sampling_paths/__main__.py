@@ -87,7 +87,7 @@ def main() -> None:
     parser.add_argument(
         "--optim",
         type=str,
-        default="optax.adam(learning_rate)",
+        default="optax.chain(optax.zero_nans(),optax.adam(learning_rate))",
         help="The optimizer to use. Use Python code to define the optimizer.",
     )
     parser.add_argument(
