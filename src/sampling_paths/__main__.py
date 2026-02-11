@@ -229,6 +229,7 @@ def main() -> None:
         alpha=args.alpha,
         scene_fn=partial(
             random_scene,
+            sample_objects=args.sample_objects,
             sample_in_canyon=args.sample_in_canyon,
             include_floor=args.include_floor,
         ),
@@ -253,7 +254,13 @@ def main() -> None:
 
     key_episodes, key_valid_samples = jr.split(key_training, 2)
     valid_keys = validation_scene_keys(
-        order=args.order, num_scenes=100, progress=False, key=key_valid_samples
+        order=args.order,
+        num_scenes=100,
+        progress=False,
+        key=key_valid_samples,
+        sample_objects=args.sample_objects,
+        sample_in_canyon=args.sample_in_canyon,
+        include_floor=args.include_floor,
     )
 
     progress_bar = tqdm(jr.split(key_episodes, args.num_episodes))

@@ -132,6 +132,7 @@ def validation_scene_keys(
     num_scenes: int = 100,
     progress: bool = True,
     key: PRNGKeyArray,
+    **kwargs: Any,
 ) -> Key[Array, " num_scenes"]:
     """
     Return a fixed set of scene keys for validating the model.
@@ -141,6 +142,7 @@ def validation_scene_keys(
         num_scenes: The number of scene keys to generate.
         progress: Whether to show a progress bar when generating the scenes.
         key: The random key to be used.
+        kwargs: Additional arguments to be passed to `random_scene`.
 
     Returns:
         A fixed set of scene keys, for which the corresponding scenes contain
@@ -155,7 +157,10 @@ def validation_scene_keys(
             yield new_key
 
     generator = filter(
-        lambda key: random_scene(key=key).compute_paths(order=order).mask.sum() > 0,
+        lambda key_to_use: random_scene(key=key_to_use, **kwargs)
+        .compute_paths(order=order)
+        .mask.sum()
+        > 0,
         keys_generator(key),
     )
 
