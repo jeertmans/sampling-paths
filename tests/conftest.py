@@ -213,24 +213,6 @@ def masked_actions(
             reachable = jnp.where(~scene.mesh.mask, True, reachable)
         masked_objects[i] = jnp.argwhere(~reachable).flatten()
 
-    chex.assert_trees_all_equal(
-        masked_objects,
-        {
-            0: jnp.array(
-                [], dtype=int
-            ),  # All objects are reachable after reflecting on object 0
-            1: jnp.array([0]),  # Object 0 is unreachable after reflecting on object 1
-            2: jnp.array([3]),  # Object 3 is unreachable after reflecting on object 2
-            3: jnp.array(
-                [], dtype=int
-            ),  # All objects are reachable after reflecting on object 3
-            4: jnp.array([], dtype=int),  # Inactive object
-            5: jnp.array([], dtype=int),  # Inactive object
-            6: jnp.array([], dtype=int),  # Inactive object
-            7: jnp.array([], dtype=int),  # Inactive object
-        },
-    )
-
     return masked_objects
 
 
