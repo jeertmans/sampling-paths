@@ -7,7 +7,7 @@ This repository accompanies the paper [*Transform-Invariant Generative Ray Path 
 
 It provides:
 - The source code for the model described in the paper, implemented in JAX, in [`src/sampling_paths`](src/sampling_paths), including a script to train and evaluate the model on synthetic data, in [`__main__.py`](src/sampling_paths/__main__.py).
-- Pre-trained model weights, available at [this link](/releases/tag/npjwt2026).
+- Pre-trained model weights, available at [this link](https://github.com/jeertmans/sampling-paths/releases/tag/npjwt2026).
 - Tests files in [`tests/`](tests/) to verify the correctness of the implementation.
 - A tutorial notebook, viewable [here](https://differt.rtfd.io/npjwt2026/notebooks/sampling-paths.html), demonstrating how to use the model for path sampling.
 
