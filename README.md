@@ -44,10 +44,18 @@ If you want to report a bug in this library or the underlying algorithm, please 
 If you use this library in your research, please cite our paper:
 
 ```bibtex
-TODO
+@misc{eertmans2026,
+	title         = {Transform-Invariant Generative Ray Path Sampling for Efficient Radio Propagation Modeling},
+	author        = {Jérome Eertmans and Enrico M. Vitucci and Vittorio Degli-Esposti and Nicola Di Cicco and Laurent Jacques and Claude Oestges},
+	year          = 2026,
+	url           = {https://arxiv.org/abs/2603.01655},
+	eprint        = {2603.01655},
+	archiveprefix = {arXiv},
+	primaryclass  = {cs.LG}
+}
 ```
 
-[arxiv-badge]: https://img.shields.io/badge/arXiv-2603.TODO-b31b1b.svg
-[arxiv-url]: https://arxiv.org/abs/2603.TODO
+[arxiv-badge]: https://img.shields.io/badge/arXiv-2603.01655-b31b1b.svg
+[arxiv-url]: https://arxiv.org/abs/2603.01655
 [colab-badge]: https://colab.research.google.com/assets/colab-badge.svg
 [colab-url]: https://colab.research.google.com/github/jeertmans/sampling-paths/blob/main/notebooks/tutorial.ipynb
