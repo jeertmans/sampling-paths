@@ -22,7 +22,7 @@ notebooks = [
 tests = [
   "beartype>=0.22.9",
   "chex>=0.1.91",
-  "pytest>=9.0.2",
+  "pytest>=9.0.3",
   "pytest-env>=1.2.0",
   "pytest-subtests>=0.15.0",
 ]
