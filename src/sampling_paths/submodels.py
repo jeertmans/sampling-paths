@@ -45,6 +45,7 @@ class ObjectsEncoder(eqx.Module):
             out_size=num_embeddings,
             width_size=width_size,
             depth=depth,
+            scan=True,
             key=key,
         )
 
@@ -106,6 +107,7 @@ class SceneEncoder(eqx.Module):
             out_size=num_embeddings,
             width_size=width_size,
             depth=depth,
+            scan=True,
             key=key,
         )
 
@@ -235,6 +237,7 @@ class Flows(eqx.Module):
             depth=depth,
             activation=jax.nn.leaky_relu,
             final_activation=jnp.exp,
+            scan=True,
             key=key,
         )
         self.dropout = eqx.nn.Dropout(dropout_rate, inference=inference)
