@@ -1,4 +1,4 @@
-# ruff: noqa: B020, PLR1704
+# ruff: file-ignore[loop-variable-overrides-iterator, redefined-argument-from-local]
 import chex
 import jax.numpy as jnp
 import jax.random as jr

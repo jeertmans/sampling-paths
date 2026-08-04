@@ -226,7 +226,7 @@ def main() -> None:
             key=model_key,
         ),
         batch_size=args.batch_size,
-        optim=eval(  # noqa: S307
+        optim=eval(
             args.optim,
             {
                 "optax": optax,

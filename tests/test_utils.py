@@ -1,4 +1,3 @@
-# ruff: noqa: N806
 from contextlib import nullcontext as does_not_raise
 
 import chex
